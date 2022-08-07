@@ -83,7 +83,10 @@ import Data.List
 
 toDigits :: Int -> [Int]
 -- BEGIN toDigits (DO NOT DELETE THIS LINE)
-toDigits = undefined
+toDigits num =
+	if num == 0
+		then []
+	else  toDigits (div num 10) ++ [(mod num 10)]
 -- END toDigits (DO NOT DELETE THIS LINE)
 
 -- Since the integer 123 actually represents the UPC code 000000000123,
@@ -98,7 +101,10 @@ toDigits = undefined
 
 padZeros :: Int -> [Int] -> [Int]
 -- BEGIN padZeros (DO NOT DELETE THIS LINE)
-padZeros = undefined
+padZeros n list =
+	if n <= length list
+		then list
+	else padZeros n (0 : list)
 -- END padZeros (DO NOT DELETE THIS LINE)
 
 -- Next, we need to extract the odd, even and check digits from the
@@ -112,17 +118,18 @@ padZeros = undefined
 
 oddDigits :: [Int] -> [Int]
 -- BEGIN oddDigits (DO NOT DELETE THIS LINE)
-oddDigits = undefined
+oddDigits nums = [nums !! x | x <- [0,2..((length nums)-1)]]
 -- END oddDigits (DO NOT DELETE THIS LINE)
 
 evenDigitsExcludingLast :: [Int] -> [Int]
 -- BEGIN evenDigitsExcludingLast (DO NOT DELETE THIS LINE)
-evenDigitsExcludingLast = undefined
+evenDigitsExcludingLast nums = init [nums !! x | x <- [1,3..(length nums)]]
 -- END evenDigitsExcludingLast (DO NOT DELETE THIS LINE)
 
 checkDigit :: [Int] -> Int
 -- BEGIN checkDigit (DO NOT DELETE THIS LINE)
-checkDigit = undefined
+checkDigit [] = 0
+checkDigit nums = last nums
 -- END checkDigit (DO NOT DELETE THIS LINE)
 
 -- Finally, put these functions together to define a function that
@@ -134,8 +141,12 @@ checkDigit = undefined
 --  checkUPC 36000241458 == False
 
 checkUPC :: Int -> Bool
--- BEGIN checkUPC (DO NOT DELETE THIS LINE)
-checkUPC = undefined
+checkUPC number = 
+	let calculated_check = (3 * (sum (oddDigits (padZeros 12 (toDigits number))))
+				+ sum (evenDigitsExcludingLast (padZeros 12 (toDigits number))))
+				`mod` 10
+	in (checkDigit (toDigits number) 
+			== (if calculated_check == 0 then 0 else (10 - calculated_check)))
 -- END checkUPC (DO NOT DELETE THIS LINE)
 
 -------------------------------------------------------------------
@@ -218,7 +229,51 @@ visualizeRows rows = mapM_ visualizeRow rows
 
 configs :: Int -> [Int] -> [[Bool]]
 -- BEGIN configs (DO NOT DELETE THIS LINE)
-configs = undefined
+configs n nums = [ (intToBoolList xs) | xs <- (composeLists n nums)]
+
+
+intToBoolList :: [Int] -> [Bool]
+intToBoolList [] = []
+intToBoolList (x:nums) =
+	if odd (length (x:nums))
+		then (replicate x False) ++ (intToBoolList nums)
+	else (replicate x True) ++ (intToBoolList nums)
+
+
+
+composeLists :: Int -> [Int] -> [[Int]]
+composeLists n nums = [ compose nums xs | xs <- getValidGaps n nums]
+
+
+compose :: [Int] -> [Int] -> [Int]
+compose _ [] = []
+compose [] (y:gaps) = y : compose [] gaps
+compose (x:nums) (y:gaps) =
+	if length (y:gaps) > length (x:nums)
+		then y : compose (x:nums) gaps
+	else x : compose nums (y:gaps)
+
+
+
+
+getValidGaps :: Int -> [Int] -> [[Int]]
+getValidGaps n nums = [xs | xs <- getGaps n 
+										  nums, not (elem 0 
+														  (tail (init xs)))]
+
+
+getGaps :: Int -> [Int] -> [[Int]]
+getGaps n nums = 
+	let gapsLength = n - sum nums
+	in [ xs | xs <- generateComb ((length nums) + 1) [0..(gapsLength)], sum xs == gapsLength]
+
+
+generateComb :: Int -> [Int] -> [[Int]]
+generateComb 0 _ = []
+generateComb 1 r = map (:[]) r
+generateComb n r = [ i:c | i <- r, c <- generateComb (n-1) r]
+
+
 -- END configs (DO NOT DELETE THIS LINE)
 
 -- Finally, write a function 'deduce' that returns a list of booleans,
@@ -234,5 +289,19 @@ configs = undefined
 
 deduce :: Int -> [Int] -> [Bool]
 -- BEGIN deduce (DO NOT DELETE THIS LINE)
-deduce = undefined
+deduce n nums = getTransformedList $ configs n nums
+
+
+getTransformedList :: [[Bool]] -> [Bool]
+getTransformedList bools = [ andBoolLists i bools  | i <- [0..((length (bools !! 0)) - 1)]]
+
+
+andBoolLists :: Int -> [[Bool]] -> Bool
+andBoolLists n xss = andBoolList $ [ xs !! n | xs <- xss]
+
+
+andBoolList :: [Bool] -> Bool
+andBoolList [] = True
+andBoolList (x:xs) = x && andBoolList xs
+
 -- END deduce (DO NOT DELETE THIS LINE)
