@@ -91,7 +91,8 @@ interpBinOp Times = (*)
 
 interp :: Expr -> Int
 -- BEGIN interp (DO NOT DELETE THIS LINE)
-interp = undefined
+interp (Lit n) = n
+interp (Op x y z) = (interpBinOp x) (interp y) (interp z)
 -- END interp (DO NOT DELETE THIS LINE)
 
 -------------------------------------------------------------------
