@@ -121,7 +121,8 @@ interp (Op x y z) = (interpBinOp x) (interp y) (interp z)
 
 simplifyZero :: Expr -> Expr
 -- BEGIN simplifyZero (DO NOT DELETE THIS LINE)
-simplifyZero e {- replace this pattern -} = e
+simplifyZero (Op Plus e (Lit 0)) = e
+--simplifyZero (Op op e1 e2) = (Op op (simplifyZero e1) (simplifyZero e2))
 -- END simplifyZero (DO NOT DELETE THIS LINE)
 simplifyZero e = e
 
@@ -158,12 +159,12 @@ simplifier = simplifyZero
 
 prop_optimizer_correctness :: Expr -> Bool
 -- BEGIN prop_optimizer_correctness (DO NOT DELETE THIS LINE)
-prop_optimizer_correctness = undefined
+prop_optimizer_correctness e = (interp e) == interp (simplifier e)
 -- END prop_optimizer_correctness (DO NOT DELETE THIS LINE)
 
 prop_optimizer_idempotent :: Expr -> Bool
 -- BEGIN prop_optimizer_idempotent (DO NOT DELETE THIS LINE)
-prop_optimizer_idempotent = undefined
+prop_optimizer_idempotent e = simplifier e == simplifier (simplifier e)
 -- END prop_optimizer_idempotent (DO NOT DELETE THIS LINE)
 
 -- For property (3), we've written the following helper function
@@ -178,7 +179,7 @@ findPlusZero (Op _ e1 e2)        = findPlusZero e1 || findPlusZero e2
 
 prop_optimizer_optimizes :: Expr -> Bool
 -- BEGIN prop_optimizer_optimizes (DO NOT DELETE THIS LINE)
-prop_optimizer_optimizes = undefined
+prop_optimizer_optimizes e = (findPlusZero (peephole simplifier e)) == False
 -- END prop_optimizer_optimizes (DO NOT DELETE THIS LINE)
 
 -- You may have noticed that property (3) is failing (if you
@@ -242,7 +243,12 @@ expr_shrink e = []
 
 peephole :: (Expr -> Expr) -> Expr -> Expr
 -- BEGIN peephole (DO NOT DELETE THIS LINE)
-peephole = undefined
+peephole f (Op Plus e (Lit 0)) = e
+peephole f (Op op e1 e2) = (Op op (peephole f e1) (peephole f e2))
+peephole f e = e
+-- simplifyZero (Op Plus e (Lit 0)) = simplifyZero e
+-- simplifyZero (Op op e1 e2) = (Op op (simplifyZero e1) (simplifyZero e2))
+
 -- END peephole (DO NOT DELETE THIS LINE)
 
 -- Once you are done, update your QuickCheck tests to use the
