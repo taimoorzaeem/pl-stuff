@@ -311,7 +311,10 @@ type Stack = [Int]
 
 step :: Instr -> Stack -> Maybe Stack
 -- BEGIN step (DO NOT DELETE THIS LINE)
-step = undefined
+step (IOp op) [] = Nothing
+step (IOp op) [n] = Nothing
+step (IOp op) (x:y:stk) = Just (((interpBinOp op) x y):stk)
+step (IPush n) s = Just (n : s)
 -- END step (DO NOT DELETE THIS LINE)
 
 -- We should also tie this together, and write a function that
@@ -320,7 +323,11 @@ step = undefined
 
 run :: [Instr] -> Stack -> Maybe Stack
 -- BEGIN run (DO NOT DELETE THIS LINE)
-run = undefined
+run [] stk = Just stk
+run (ins:inss) stk =
+    case step ins stk of
+        Just stk -> run inss stk
+        Nothing -> Nothing
 -- END run (DO NOT DELETE THIS LINE)
 
 -------------------------------------------------------------------
