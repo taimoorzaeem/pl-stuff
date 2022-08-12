@@ -6,24 +6,24 @@
 #endif
 module Calculator where
 
--- In this lab, we will start exploring some of the implementation
--- themes of this course by writing a simple interpreter for an
--- arithmetic language, a very small subset of Haskell, and then
--- compiling this language into a simple stack based instruction
--- language.
---
--- This is NOT a heavy coding lab: the solution for each given problem
--- should only be a few lines of code.
---
--- The recommended way to run this code is to load it into ghci:
---
---      ghci Calculator.hs
---
--- You will then be able to run most functions directly in the resulting
--- REPL.  If you make modifications to this file, type ':r' to reload
--- your changes in the repl.  Note that you will lose any local bindings
--- when you reload, so if you want some to persist put it in this file.
---
+--- In this lab, we will start exploring some of the implementation
+--- themes of this course by writing a simple interpreter for an
+--- arithmetic language, a very small subset of Haskell, and then
+--- compiling this language into a simple stack based instruction
+--- language.
+---
+--- This is NOT a heavy coding lab: the solution for each given problem
+--- should only be a few lines of code.
+---
+--- The recommended way to run this code is to load it into ghci:
+---
+---      ghci Calculator.hs
+---
+--- You will then be able to run most functions directly in the resulting
+--- REPL.  If you make modifications to this file, type ':r' to reload
+--- your changes in the repl.  Note that you will lose any local bindings
+--- when you reload, so if you want some to persist put it in this file.
+---
 -- The installation of Haskell on 'access.cims.nyu.edu' (accessible using 'ssh
 -- username@access.cims.nyu.edu') has QuickCheck preinstalled and this is
 -- all you need to do; if you are using your own installation of Haskell
@@ -313,7 +313,7 @@ step :: Instr -> Stack -> Maybe Stack
 -- BEGIN step (DO NOT DELETE THIS LINE)
 step (IOp op) [] = Nothing
 step (IOp op) [n] = Nothing
-step (IOp op) (x:y:stk) = Just (((interpBinOp op) x y):stk)
+step (IOp op) (x:y:stk) = Just (((interpBinOp op) y x):stk)
 step (IPush n) s = Just (n : s)
 -- END step (DO NOT DELETE THIS LINE)
 
@@ -349,7 +349,8 @@ run (ins:inss) stk =
 
 compile :: Expr -> [Instr]
 -- BEGIN compile (DO NOT DELETE THIS LINE)
-compile = undefined
+compile (Lit n) = [] ++ [IPush n]
+compile (Op op e1 e2) = compile e1 ++ compile e2 ++ [IOp op]
 -- END compile (DO NOT DELETE THIS LINE)
 
 -- Your compiler is correct if running the instructions produced
@@ -358,7 +359,7 @@ compile = undefined
 
 prop_compile_correctness :: Expr -> Bool
 -- BEGIN prop_compile_correctness (DO NOT DELETE THIS LINE)
-prop_compile_correctness = undefined
+prop_compile_correctness e = run (compile e) [] == Just [interp e]
 -- END prop_compile_correctness (DO NOT DELETE THIS LINE)
 
 -- We've also provided for you a simple decompiler which takes
@@ -377,12 +378,18 @@ decompile is =
 
 prop_compile_decompile :: Expr -> Bool
 -- BEGIN prop_compile_decompile (DO NOT DELETE THIS LINE)
-prop_compile_decompile = undefined
+prop_compile_decompile e = decompile (compile e) == Just e
 -- END prop_compile_decompile (DO NOT DELETE THIS LINE)
 
 prop_decompile_compile :: [Instr] -> Bool
 -- BEGIN prop_decompile_compile (DO NOT DELETE THIS LINE)
-prop_decompile_compile = undefined
+prop_decompile_compile [] = True
+prop_decompile_compile [n] = True
+prop_decompile_compile [n, n'] = True -- If not a correct ins, return True 
+prop_decompile_compile inss = 
+    case decompile inss of
+        Just e -> compile e == inss
+        Nothing -> False
 -- END prop_decompile_compile (DO NOT DELETE THIS LINE)
 
 -- That concludes this lab!  See the assigment release announcement
