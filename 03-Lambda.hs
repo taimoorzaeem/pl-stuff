@@ -74,7 +74,9 @@ newtype Name = Name String
 
 fv :: Expr -> Set Name
 -- BEGIN fv (DO NOT DELETE THIS LINE)
-fv = undefined
+fv (Var name) = Set.singleton name
+fv (Lambda name expr) = Set.delete name (fv expr)
+fv (App e1 e2) = Set.union (fv e1) (fv e2)
 -- END fv (DO NOT DELETE THIS LINE)
 
 -- Here are a few unit tests for free variables:
