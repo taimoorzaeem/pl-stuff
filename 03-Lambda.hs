@@ -234,7 +234,20 @@ data ExprD = FreeVarD Name
 
 toExprD :: Expr -> ExprD
 -- BEGIN toExprD (DO NOT DELETE THIS LINE)
-toExprD = undefined
+toExprD (Var n) = FreeVarD n
+toExprD (App e1 e2) = (AppD (toExprD e1) (toExprD e2))
+toExprD (Lambda name expr) = LambdaD (toExprDhelper (name:[]) expr)
+
+
+
+-- ExprD helper function
+toExprDhelper :: [Name] -> Expr -> ExprD
+toExprDhelper stack (Var name) =
+    case elemIndex name stack of
+        Just n -> BoundVarD n
+        Nothing -> FreeVarD name
+toExprDhelper stack (App e1 e2) = AppD (toExprDhelper stack e1) (toExprDhelper stack e2)
+toExprDhelper stack (Lambda name expr) = LambdaD (toExprDhelper (name:stack) expr)
 -- END toExprD (DO NOT DELETE THIS LINE)
 
 -- Alpha equality on 'ExprD' is just structural equality.
@@ -246,7 +259,7 @@ alphaEqD e1 e2 = e1 == e2
 
 alphaEq :: Expr -> Expr -> Bool
 -- BEGIN alphaEq (DO NOT DELETE THIS LINE)
-alphaEq = undefined
+alphaEq e1 e2 = toExprD e1 == toExprD e2
 -- END alphaEq (DO NOT DELETE THIS LINE)
 
 -- Here are some examples to test on. (Question: which of these
