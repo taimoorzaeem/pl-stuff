@@ -156,7 +156,20 @@ fresh in_scope (Name x) = Name (head (filter p cands))
 
 subst :: Expr -> Subst -> Expr
 -- BEGIN subst (DO NOT DELETE THIS LINE)
-subst = undefined
+subst (Var name) (n,e) = 
+    if name == n
+        then e
+    else (Var name)
+subst (Lambda name expr) (n,e) =
+    if (fv (Lambda name expr)) == Set.empty
+        then (Lambda name expr)
+    else
+        (if Set.member name (Set.union (fv expr) (Set.union (Set.singleton n) (fv e)))
+            then Lambda (freshVar) (subst (subst expr (name, Var freshVar)) (n,e))
+        else Lambda name (subst expr (n,e)))
+    where
+        freshVar = fresh (Set.union (fv expr) (Set.union (Set.singleton n) (fv e))) name 
+subst (App e1 e2) (n,e) = App (subst e1 (n,e)) (subst e2 (n,e))
 -- END subst (DO NOT DELETE THIS LINE)
 
 -------------------------------------------------------------------
