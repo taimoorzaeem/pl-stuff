@@ -348,7 +348,22 @@ freshU u = (Name ("$u" ++ show u), u+1)
 
 substU :: FreshSupply -> Expr -> Subst -> (Expr, FreshSupply)
 -- BEGIN substU (DO NOT DELETE THIS LINE)
-substU = undefined
+substU fr (Var name) (n,e) = 
+    if name == n
+        then (e, fr)
+    else (Var name, fr)
+
+substU fr (Lambda name expr) (n,e) =
+    let (newName,newSup) = freshU fr
+        (expr1,newSup2) = (substU newSup expr (name,Var newName))
+        (expr2,newSup3) = (substU newSup2 expr1 (n,e))
+    in (Lambda newName expr2, newSup3)
+
+substU fr (App e1 e2) (n,e) =
+    let (expr1, next1) = substU fr e1 (n,e)
+        (expr2, next2) = substU next1 e2 (n,e)
+    in (App expr1 expr2, next2)
+
 -- END substU (DO NOT DELETE THIS LINE)
 
 -------------------------------------------------------------------
