@@ -400,6 +400,33 @@ prop_alphaEq_refl e = alphaEq e e
 
 -- BEGIN QuickCheck (DO NOT DELETE THIS LINE)
 -- Your properties here
+
+-- results of subst and substU should be alphaEq from same parameters
+prop_subst_substU_alphaEq :: Expr -> Subst -> Bool
+prop_subst_substU_alphaEq e s = 
+    let subst_expr = subst e s
+        (substU_expr,_) = substU 0 e s
+    in (alphaEq subst_expr substU_expr) == True
+
+
+-- results of substU with different starting freshSupply should be alphaEq
+prop_alphaEq_substU_substU :: Expr -> Subst -> Bool
+prop_alphaEq_substU_substU e s =
+    let (expr1,_) = substU 12 e s
+        (expr2,_) = substU 43 e s
+    in (alphaEq expr1 expr2) == True
+
+
+-- first substituting the expressions and then converting the expression
+-- toExprD should yield alpha equilvalence with directly substituing the
+-- the expressionD
+prop_subst_substD_alphaEq :: Expr -> Subst -> Bool
+prop_subst_substD_alphaEq expr (n,e) =
+    let subst_expr = subst expr (n,e)
+        subst_expr_toExprD = toExprD subst_expr
+        substD_expr = substD (toExprD expr) (n,toExprD e)
+    in alphaEqD subst_expr_toExprD substD_expr
+
 -- END QuickCheck (DO NOT DELETE THIS LINE)
 
 -------------------------------------------------------------------
@@ -429,7 +456,13 @@ prop_alphaEq_refl e = alphaEq e e
 
 step_cbn :: Expr -> Maybe Expr
 -- BEGIN step_cbn (DO NOT DELETE THIS LINE)
-step_cbn = undefined
+step_cbn (Var v) = Just (Var v)
+--step_cbn (Lambda name expr) =
+step_cbn (App e1 e2) = 
+    case e1 of
+        (Lambda name expr) -> Just (subst expr (name,e2))
+        _ -> Just (App e1 e2)
+step_cbn e = Just e
 -- END step_cbn (DO NOT DELETE THIS LINE)
 
 -- With a step function, we can write a function which takes an
@@ -446,7 +479,10 @@ step_cbn = undefined
 
 reductions :: (Expr -> Maybe Expr) -> Expr -> [Expr]
 -- BEGIN reductions (DO NOT DELETE THIS LINE)
-reductions = undefined
+reductions f (App (Lambda name e1) e2) = (App (Lambda name e1) e2) : (reductions f expr)
+    where
+        (Just expr) = f (App (Lambda name e1) e2)
+reductions _ e = e : []
 -- END reductions (DO NOT DELETE THIS LINE)
 
 -- Here are some example reductions:
