@@ -70,7 +70,7 @@ exIntList = [2,3,1]
 
 exSortInt :: [Int]
 -- BEGIN exSortInt (DO NOT DELETE THIS LINE)
-exSortInt = undefined
+exSortInt = sortD dOrdInt exIntList
 -- END exSortInt (DO NOT DELETE THIS LINE)
 
 -- Pairs (a, b) also have an Ord instance. It looks like this:
@@ -92,7 +92,13 @@ exSortInt = undefined
 
 dOrdXY :: OrdD a -> OrdD b -> OrdD (a, b)
 -- BEGIN dOrdXY (DO NOT DELETE THIS LINE)
-dOrdXY = undefined
+-- compareD should be (a,b) -> (a,b) -> Ordering
+
+dOrdXY d1 d2 = OrdD { compareD = \(a1,b1) (a2,b2) -> (
+        case (compareD d1) a1 a2 of
+            EQ -> (compareD d2) b1 b2
+            r -> r
+) }
 -- END dOrdXY (DO NOT DELETE THIS LINE)
 
 -- Here's a list of pairs of Ints:
@@ -108,7 +114,7 @@ exIntPairList = [(2,1), (1,2)]
 
 exSortIntPair :: [(Int, Int)]
 -- BEGIN exSortIntPair (DO NOT DELETE THIS LINE)
-exSortIntPair = undefined
+exSortIntPair = sortBy (compareD (dOrdXY dOrdInt dOrdInt)) exIntPairList
 -- END exSortIntPair (DO NOT DELETE THIS LINE)
 
 -- The previous ordering instance we gave is a bit arbitrary;
@@ -118,7 +124,11 @@ exSortIntPair = undefined
 
 dOrdYX :: OrdD a -> OrdD b -> OrdD (a, b)
 -- BEGIN dOrdYX (DO NOT DELETE THIS LINE)
-dOrdYX = undefined
+dOrdYX d1 d2 = OrdD { compareD = \(a1,b1)(a2,b2) -> (
+    case (compareD d2) b1 b2 of
+        EQ -> (compareD d1) a1 a2
+        r -> r
+) }
 -- END dOrdYX (DO NOT DELETE THIS LINE)
 
 -- With type-classes, it is not possible to define both of these
@@ -165,7 +175,7 @@ dOrdIntDesc = OrdD $ \x y -> Prelude.compare (-x) (-y)
 
 exSortIntDesc :: [Int]
 -- BEGIN exSortIntDesc (DO NOT DELETE THIS LINE)
-exSortIntDesc = undefined
+exSortIntDesc = sortBy (compareD dOrdIntDesc) exIntList
 -- END exSortIntDesc (DO NOT DELETE THIS LINE)
 
 -- Local instance declarations don't have any effect on runtime,
@@ -185,8 +195,8 @@ exSortIntDesc = undefined
 -- be, and then fill in the implementation.)
 
 -- BEGIN sortIntDesc (DO NOT DELETE THIS LINE)
-sortIntDesc :: your_type_signature_here
-sortIntDesc = undefined
+sortIntDesc :: OrdD Int -> [Int] -> [Int]
+sortIntDesc d xs = sortD d xs
 -- END sortIntDesc (DO NOT DELETE THIS LINE)
 
 -- However, local instances can give rise to some odd behavior.  For
@@ -209,8 +219,8 @@ sortIntDesc = undefined
 -- is no way to type-case on the type of a variable.)
 
 -- BEGIN sortIntDesc' (DO NOT DELETE THIS LINE)
-sortIntDesc' :: your_type_signature_here
-sortIntDesc' = undefined
+sortIntDesc' :: OrdD a -> [a] -> [a]
+sortIntDesc' d xs = sortD d xs
 -- END sortIntDesc' (DO NOT DELETE THIS LINE)
 
 -- In fact, with local instances, we lose "principal types", an
@@ -236,7 +246,9 @@ sortIntDesc' = undefined
 
 {-
 -- BEGIN localInstancesInvariant (DO NOT DELETE THIS LINE)
-(your English here)
+If local instances are allowed here, a change in Ordering would impact
+the internal ordering of the trees inside that map. This could lead to 
+wrong results if a binary search is conducted on that map
 -- END localInstancesInvariant (DO NOT DELETE THIS LINE)
 -}
 
