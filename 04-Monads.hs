@@ -45,7 +45,18 @@ run0 [] stk = Just stk
 
 run :: [Instr] -> Stack -> Maybe Stack
 -- BEGIN run (DO NOT DELETE THIS LINE)
-run = undefined
+run (i:is) stk = (step i stk) >>= \s ->
+                    run is s
+run [] stk = Just stk
+
+-- With do notation
+{-
+run (i:is) stk = do {
+        s <- step i stk;
+        run is s
+    }
+run [] stk = Just stk
+-}
 -- END run (DO NOT DELETE THIS LINE)
 
 -----------------------------------------------------------------------
@@ -98,7 +109,7 @@ type UniqMonad0 a = FreshSupply -> (a, FreshSupply)
 --  returnU :: a -> (FreshSupply -> (a, FreshSupply))
 returnU :: a -> UniqMonad0 a
 -- BEGIN returnU (DO NOT DELETE THIS LINE)
-returnU = undefined
+returnU x = \s -> (x,s)
 -- END returnU (DO NOT DELETE THIS LINE)
 
 --  bindU :: (FreshSupply -> (a, FreshSupply))
@@ -106,7 +117,12 @@ returnU = undefined
 --        -> (FreshSupply -> (b, FreshSupply))
 bindU :: UniqMonad0 a -> (a -> UniqMonad0 b) -> UniqMonad0 b
 -- BEGIN bindU (DO NOT DELETE THIS LINE)
-bindU = undefined
+bindU f hof = \s -> 
+    let (a,fr) = (f s)
+        f' = (hof a)
+    in f' fr
+                
+                    
 -- END bindU (DO NOT DELETE THIS LINE)
 
 -- Unfortunately, to actually define a monad instance, we can't
@@ -138,7 +154,21 @@ freshU = UniqMonad (\u -> ("$u" ++ show u, u+1))
 
 substU :: Expr -> Subst -> UniqMonad Expr
 -- BEGIN substU (DO NOT DELETE THIS LINE)
-substU = undefined
+substU (Var name) (n,e) = 
+    if (name == n) 
+        then return e 
+    else return (Var name)
+substU (App e1 e2) (n,e) =
+    substU e1 (n,e) >>= \exp1 ->
+    substU e2 (n,e) >>= \exp2 ->
+    return (App exp1 exp2)
+substU (Lambda name expr) (n,e) = do {
+        fr <- freshU;
+        e1 <- substU expr (name,Var fr);
+        e2 <- substU e1 (n,e);
+        return (Lambda fr e2)
+    }
+    
 -- END substU (DO NOT DELETE THIS LINE)
 
 -- To run substU, use this function:
