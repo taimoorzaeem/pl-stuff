@@ -202,7 +202,8 @@ substU (Lambda name expr) (n,e) = do {
 
 (>=>) :: Monad m => (a -> m b) -> (b -> m c) -> (a -> m c)
 -- BEGIN (>=>) (DO NOT DELETE THIS LINE)
-(>=>) = undefined
+--(>=>) f1 f2 = \a -> (f1 a) >>= \b -> f2 b >>= \c -> return c
+(>=>) f g = \x -> f x >>= g
 -- END (>=>) (DO NOT DELETE THIS LINE)
 
 -- In fact, (>=>) is equivalent in expressivity to (>>=).  To
@@ -210,5 +211,5 @@ substU (Lambda name expr) (n,e) = do {
 
 bind :: Monad m => m a -> (a -> m b) -> m b
 -- BEGIN bind (DO NOT DELETE THIS LINE)
-bind = undefined
+bind = undefined -- I don't know how to do this one, PLEASE HELP!!
 -- END bind (DO NOT DELETE THIS LINE)
