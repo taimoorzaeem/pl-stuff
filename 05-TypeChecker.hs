@@ -121,7 +121,11 @@ data Type = TVar Name           -- a
 
 occurs :: Name -> Type -> Bool
 -- BEGIN occurs (DO NOT DELETE THIS LINE)
-occurs = undefined
+occurs x (TVar name) = if (x == name) then True else False
+occurs x (TArrow t1 t2) = occurs x t1 || occurs x t2
+occurs x (TList t) = occurs x t
+occurs x (TPair t1 t2) = occurs x t1 || occurs x t2
+occurs _ _ = False
 -- END occurs (DO NOT DELETE THIS LINE)
 
 
@@ -152,7 +156,9 @@ occurs = undefined
 
 {-
 -- BEGIN inference_by_hand (DO NOT DELETE THIS LINE)
--- ANSWER HERE
+-- tx = tf -> ta
+-- tf = tb -> ta
+-- tx = tf -> tb
 -- END inference_by_hand (DO NOT DELETE THIS LINE)
 -}
 
@@ -161,7 +167,7 @@ occurs = undefined
 
 {-
 -- BEGIN fix_the_type_error (DO NOT DELETE THIS LINE)
--- ANSWER HERE
+-- ta
 -- END fix_the_type_error (DO NOT DELETE THIS LINE)
 -}
 
@@ -236,7 +242,18 @@ genPat env (PVar n) = do
     addPatBinding env n t
     return t
 -- BEGIN genPat (DO NOT DELETE THIS LINE)
-genPat _ _ = undefined
+genPat env (PCons p1 p2)  = do
+    t1 <- genPat env p1
+    t2 <- genPat env p2
+    addConstraint env (TList t1,t2)
+    return t2
+genPat env (PPair p1 p2) = do
+    t1 <- genPat env p1
+    t2 <- genPat env p2
+    return (TPair t1 t2)
+genPat env (PNil) = do
+    t <- fresh env
+    return (TList t)
 -- END genPat (DO NOT DELETE THIS LINE)
 
 -- To test your program on individual examples, we have provided
@@ -296,7 +313,38 @@ lookupBinding :: TcEnv -> Name -> IO Type
 
 genExpr :: TcEnv -> Expr -> IO Type
 -- BEGIN genExpr (DO NOT DELETE THIS LINE)
-genExpr = undefined
+genExpr env (Var name) = do
+    t <- lookupBinding env name
+    return t
+genExpr env (Lambda name expr) = do
+    t0 <- fresh env
+    t2 <- genExpr (addBinding env name t0) expr
+    return (TArrow t0 t2)
+genExpr env (App e1 e2) = do
+    type1 <- genExpr env e1
+    type2 <- genExpr env e2
+    t <- fresh env
+    addConstraint env (type1, TArrow type2 t)
+    return t
+genExpr env (If e1 e2 e3) = do
+    t1 <- genExpr env e1
+    t2 <- genExpr env e2
+    t3 <- genExpr env e3
+    addConstraint env (t1, TBool)
+    addConstraint env (t2, t3)
+    return t2
+genExpr env (Pair e1 e2) = do
+    t1 <- genExpr env e1
+    t2 <- genExpr env e2
+    t <- fresh env
+    addConstraint env (t, TArrow t1 t2)
+    return t
+genExpr env (Nil) = do
+    t <- fresh env
+    return (TList t)
+genExpr env (Int n) = do return (TInt)
+genExpr env (Bool b) = do return (TBool)
+
 -- END genExpr (DO NOT DELETE THIS LINE)
 
 -- You can test your code using the genExprTest function.
@@ -439,7 +487,45 @@ failUnification t1 t2 = error $ "Unification failed: " ++ ppr t1 ++ " does not u
 
 solveConstraints :: [Constraint] -> IO (Map Name Type)
 -- BEGIN solveConstraints (DO NOT DELETE THIS LINE)
-solveConstraints = undefined
+solveConstraints [] = do {
+        return (Map.empty);
+    }
+
+
+
+-- TEST unify: unify (TArrow (TInt) (TArrow TInt TInt)) (TArrow (TInt) (TArrow (TVar "t0") (TVar "t2")))
+
+unify :: Type -> Type -> IO [Constraint]
+unify (TArrow t1 t2) (TArrow t3 t4) = do { 
+        if (t1 == t3) 
+                then (unify t2 t4)
+                else do {
+                    cs' <- unify t2 t4;
+                    (if (isUnifiable t1 t3)
+                        then return ((t1,t3):cs') 
+                        else failUnification t1 t3);
+                }
+    }
+unify t1 t2 = do {
+        if (t1 == t2) 
+                then return []
+                else do {
+                    (if (isUnifiable t1 t2)
+                        then return ((t1,t2):[]) 
+                        else failUnification t1 t2);
+                }
+    }
+isUnifiable :: Type -> Type -> Bool
+isUnifiable (TInt) (TVar _) = True
+isUnifiable (TVar _) (TInt) = True
+isUnifiable (TBool) (TVar _) = True
+isUnifiable (TVar _) (TBool) = True
+isUnifiable (TPair _ _) (TVar _) = True
+isUnifiable (TVar _) (TPair _ _) = True
+isUnifiable (TList _) (TVar _) = True
+isUnifiable (TVar _) (TList _) = True
+isUnifiable _ _ = False
+    
 -- END solveConstraints (DO NOT DELETE THIS LINE)
 
 -- Finally, we can put it all together!  To perform type inference, we
