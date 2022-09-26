@@ -1,12 +1,6 @@
 #lang racket
 (provide (all-defined-out))
 
-;; This assignment should be completed individually.
-;;
-;; To test this, do:
-;; $ raco pkg install rackunit
-;; $ raco test racket.rkt
-
 ;; These are a series of finger-exercise programs to help you:
 ;; - learn a bit of Racket
 ;; - practice with structural recursion and type-based program design
@@ -26,12 +20,15 @@
 
 ;; Natural -> Natural
 ;; Compute n!
-
-;; Note: This is a very naive implementation
 (define (fact n)
-  (if (= n 0)
-      1
-      (* n (fact (- n 1)))))
+  (define (fact-iter acc n)
+    (if (= n 0)
+        acc
+        (fact-iter (* n acc) (- n 1))))
+  (if (< n 0)
+    0
+    (fact-iter 1 n)))
+
 
 (module+ test
   (check-equal? (fact 0) 1)
@@ -41,13 +38,14 @@
 
 ;; Natural -> Natural
 ;; Compute nth Fibonnaci number
-
-;; Note: This is a very naive implementation
 (define (fib n)
-  (cond
-    [(= n 0) 0]
-    [(= n 1) 1]
-    [else (+ (fib (- n 1)) (fib (- n 2)))]))
+  (define (fib-iter a b n)
+    (if (= n 0)
+        b
+        (fib-iter (+ a b) a (- n 1))))
+  (if (< n 0)
+      0
+      (fib-iter 1 0 n)))
 
 
 (module+ test
@@ -110,6 +108,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Simple list functions
 
+;; Follow this template for functions on lists of numbers where appropriate.
+;; [Listof Number] ... -> ...
+#;
+(define (lon-template ls ...)
+  (match ls
+    ['() ...]
+    [(cons n ls) (... n (lon-template ls ...) ...)]))
+
 ;; [Listof Number] -> Natural
 ;; Compute the length of given list of numbers
 (define (length-lon ls)
@@ -121,7 +127,8 @@
   (check-equal? (length-lon '()) 0)
   (check-equal? (length-lon '(1)) 1)
   (check-equal? (length-lon '(2)) 1)
-  (check-equal? (length-lon '(1 2)) 2))
+  (check-equal? (length-lon '(1 2)) 2)
+  (check-equal? (length-lon '(1 2 3 4 5)) 5))
 
 ;; [Listof Number] -> Number
 ;; Compute the sum of given list of numbers
@@ -134,7 +141,8 @@
   (check-equal? (sum '()) 0)
   (check-equal? (sum '(1)) 1)
   (check-equal? (sum '(2)) 2)
-  (check-equal? (sum '(1 2)) 3))
+  (check-equal? (sum '(1 2)) 3)
+  (check-equal? (sum '(1 2 3 4 5)) 15))
 
 ;; [Listof Number] [Listof Number] -> [Listof Number]
 ;; Compute the pairwise sum of given list of numbers
@@ -142,15 +150,13 @@
 (define (zip-add ls1 ls2)
   (match ls1
     ['() '()]
-    [(cons n1 ls1) (append (list (+ n1
-                                    (car ls2)))
-                           (zip-add ls1
-                                    (cdr ls2)))]))
+    [(cons n1 ls1) (append (list (+ n1 (car ls2))) (zip-add ls1 (cdr ls2)))]))
 
 (module+ test
   (check-equal? (zip-add '() '()) '())
   (check-equal? (zip-add '(1) '(2)) '(3))
-  (check-equal? (zip-add '(1 3) '(2 4)) '(3 7)))
+  (check-equal? (zip-add '(1 3) '(2 4)) '(3 7))
+  (check-equal? (zip-add '(1 3 2 4) '(2 4 1 9)) '(3 7 3 13)))
 
 ;; [Listof Number] [Listof Number] -> [Listof [List Number Number]]
 ;; Compute the pairwise list of given list of numbers
@@ -158,14 +164,14 @@
 (define (zip-lon ls1 ls2)
   (match ls1
     ['() '()]
-    [(cons n1 ls1) (append (list (list n1 (car ls2)))
-                           (zip-lon ls1 (cdr ls2)))]))
+    [(cons n1 ls1) (append (list (list n1 (car ls2))) (zip-lon ls1 (cdr ls2)))]))
 
 
 (module+ test
   (check-equal? (zip-lon '() '()) '())
   (check-equal? (zip-lon '(1) '(2)) '((1 2)))
-  (check-equal? (zip-lon '(1 3) '(2 4)) '((1 2) (3 4))))
+  (check-equal? (zip-lon '(1 3) '(2 4)) '((1 2) (3 4)))
+  (check-equal? (zip-lon '(1 3 5) '(2 4 6)) '((1 2) (3 4) (5 6))))
 
 ;; [Pairof Real [Listof Real]] -> Real
 ;; Compute max element of non-empty list of numbers
@@ -268,7 +274,8 @@
   (check-equal? (zip '() '()) '())
   (check-equal? (zip '(1) '(2)) '((1 2)))
   (check-equal? (zip '(1 3) '(2 4)) '((1 2) (3 4)))
-  (check-equal? (zip '(1 3) '("a" "b")) '((1 "a") (3 "b"))))
+  (check-equal? (zip '(1 3) '("a" "b")) '((1 "a") (3 "b")))
+  (check-equal? (zip '(1 3 5) '("a" "b" "c")) '((1 "a") (3 "b") (5 "c"))))
 
 ;; ∀ (α) (Listof (α -> α)) -> (α -> α)
 ;; Compose a list of functions into a single function
@@ -384,6 +391,18 @@
 (struct node (n left right) #:transparent)   
 ;; this structure 'node' should be recursive - 
 ;; it's last two parameters should be binary trees 
+
+;; Follow this template for functions on binary trees.
+;; bt ... -> ...
+#;
+(define (btn-template n)
+  (match n
+    [(leaf) ...]
+    [(node n left right)
+     (... n
+          (btn-template left ...)
+          (btn-template right ...) ...)]))
+
 
 ;; BTNumber -> Natural
 ;; Compute the height of a binary tree (leaf has height 0)
@@ -542,6 +561,21 @@
     [(list e1 e2)       (App (sexpr->expr e1) (sexpr->expr e2))]
     [(list 'lambda (list (? symbol? x)) e) 
                         (Lam x (sexpr->expr e))]))
+
+;; Below is a template of how to traverse this AST:
+
+#;
+(define (expr-template e)
+  (match e
+    [(Int i) ...]
+    [(Bool b) ...]
+    [(Var v) ...]
+    [(App e1 e2)
+     (... (expr-template e1)
+          (expr-template e2) ...)]
+    [(Lam x e)
+     (... x (expr-template e) ...)]))
+
 
 ;; Note: for each of the following functions, the order of elements
 ;; and whether repetitions occur is left unspecified and up to you.
