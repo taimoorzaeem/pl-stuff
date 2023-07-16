@@ -211,5 +211,5 @@ substU (Lambda name expr) (n,e) = do {
 
 bind :: Monad m => m a -> (a -> m b) -> m b
 -- BEGIN bind (DO NOT DELETE THIS LINE)
-bind = undefined -- I don't know how to do this one, PLEASE HELP!!
+bind f g = (id >=> g) f
 -- END bind (DO NOT DELETE THIS LINE)
