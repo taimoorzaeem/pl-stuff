@@ -1,3 +1,7 @@
+;; Stuff to load when working with the book, The Reasoned Schemer
+;; For loading:
+;;  - enter racket repl
+;;  > (enter! "minikanren.rkt")
 #lang racket
 (require minikanren)
 
@@ -38,3 +42,27 @@
           (cdro l d)
           (listo d)))
       (else fail))))
+
+(define lolo
+  (lambda (l)
+    (conde
+      ((nullo l) succeed)
+      ((fresh (a)
+        (caro l a)
+        (listo a))
+      (fresh (d)
+        (cdro l d)
+        (lolo d)))
+      (else fail))))
+
+;; TODO: Understand how this definiton is really working under the hood
+;; (define twinso
+;;   (lambda (s)
+;;     (fresh (x y)
+;;      (conso x y s)
+;;      (conso x '() s))))
+
+(define twinso
+  (lambda (s)
+    (fresh (x)
+      (== (x x) s))))
