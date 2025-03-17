@@ -60,9 +60,83 @@
 ;;   (lambda (s)
 ;;     (fresh (x y)
 ;;      (conso x y s)
-;;      (conso x '() s))))
+;;      (conso x '() y))))
 
 (define twinso
   (lambda (s)
     (fresh (x)
-      (== (x x) s))))
+      (conso x x s))))
+
+(define loto
+  (lambda (l)
+    (conde
+      ((nullo l) succeed)
+      ((fresh (a)
+        (caro l a)
+        (twinso a))
+       (fresh (d)
+        (cdro l d)
+        (loto d)))
+      (else fail))))
+
+
+(define listofo
+  (lambda (predo l)
+    (conde
+      ((nullo l) succeed)
+      ((fresh (a)
+        (caro l a)
+        (predo a))
+       (fresh (d)
+        (cdro l d)
+        (listofo predo d)))
+      (else fail))))
+
+
+(define eq-caro
+  (lambda (l x)
+    (caro l x)))
+
+
+(define membero
+  (lambda (x l)
+    (conde
+      ((nullo l) fail)
+      ((eq-caro l x) succeed)
+      (else
+        (fresh (d)
+          (cdro l d)
+          (membero x d))))))
+
+(define identity
+  (lambda (l)
+    (run* (y)
+      (membero y l))))
+
+(define pmembero
+  (lambda (x l)
+    (conde
+      ((eq-caro l x)
+        (fresh (a d)
+          (cdro l (cons a d))))
+      ((eq-caro l x) (cdro l '()))
+      (else
+        (fresh (d)
+          (cdro l d)
+          (pmembero x d))))))
+
+
+(define memberrevo
+  (lambda (x l)
+    (conde
+      ((nullo l) fail)
+      (succeed
+        (fresh (d)
+          (cdro l d)
+          (memberrevo x d)))
+      (else (eq-caro l x)))))
+
+
+(define reverse-list
+  (lambda (l)
+    (run* (x) (memberrevo x l))))
