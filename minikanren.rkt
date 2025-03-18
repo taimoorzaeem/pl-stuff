@@ -140,3 +140,30 @@
 (define reverse-list
   (lambda (l)
     (run* (x) (memberrevo x l))))
+
+
+(define memo
+  (lambda (x l out)
+    (conde
+      ((eq-caro l x) (== l out))
+      (else
+        (fresh (d)
+          (cdro l d)
+          (memo x d out))))))
+
+
+(define rembero
+  (lambda (x l out)
+    (conde
+      ((nullo l) (== '() out))
+      ((eq-caro l x) (cdro l out))
+      (else
+        (fresh (a d res)
+          (conso a d l)
+          (rembero x d res)
+          (conso a res out))))))
+
+
+(define surpriseo
+  (lambda (s)
+    (rembero s '(a b c) '(a b c))))
