@@ -167,3 +167,14 @@
 (define surpriseo
   (lambda (s)
     (rembero s '(a b c) '(a b c))))
+
+
+(define appendo
+  (lambda (l s out)
+    (conde
+      ((nullo l) (== s out))
+      (else
+        (fresh (a d res)
+          (conso a d l)
+          (appendo d s res)
+          (conso a res out))))))
