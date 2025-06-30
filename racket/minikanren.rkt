@@ -178,3 +178,50 @@
           (conso a d l)
           (appendo d s res)
           (conso a res out))))))
+
+
+(define swappendo
+  (lambda (l s out)
+    (conde
+      (succeed
+        (fresh (a d res)
+          (conso a d l)
+          (conso a res out)
+          (swappendo d s res)))
+      (else (nullo l) (== s out)))))
+
+
+(define unwrapo
+  (lambda (x out)
+    (conde
+      (succeed (== x out))
+      (else 
+        (fresh (a)
+          (caro x a)
+          (unwrapo a out))))))
+
+
+(define flatteno
+  (lambda (s out)
+    (conde
+      ((nullo s) (== '() out))
+      ((pairo s)
+        (fresh (a d res-a res-d)
+          (conso a d s)
+          (flatteno a res-a)
+          (flatteno d res-d)
+          (appendo res-a res-d out)))
+      (else (conso s '() out)))))
+
+
+(define flattenrevo
+  (lambda (s out)
+    (conde
+      (succeed (conso s '() out))
+      ((nullo s) (== '() out))
+      (else
+        (fresh (a d res-a res-d)
+          (conso a d s)
+          (flatteno a res-a)
+          (flatteno d res-d)
+          (appendo res-a res-d out))))))
