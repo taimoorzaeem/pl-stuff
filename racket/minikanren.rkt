@@ -225,3 +225,23 @@
           (flatteno a res-a)
           (flatteno d res-d)
           (appendo res-a res-d out))))))
+
+
+;; Chap 06
+
+(define anyo
+  (lambda (g)
+    (conde
+      (g succeed)
+      (else (anyo g)))))
+
+(define nevero (anyo fail))
+
+(define alwayso (anyo succeed))
+
+
+(define salo
+  (lambda (g)
+    (conde
+      (succeed succeed)
+      (else g))))
