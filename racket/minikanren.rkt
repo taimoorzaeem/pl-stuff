@@ -245,3 +245,61 @@
     (conde
       (succeed succeed)
       (else g))))
+
+;; Chap 07
+
+(define bit-xoro
+  (lambda (x y r)
+    (conde
+      ((== 0 x) (== 0 y) (== 0 r))
+      ((== 1 x) (== 0 y) (== 1 r))
+      ((== 0 x) (== 1 y) (== 1 r))
+      ((== 1 x) (== 1 y) (== 0 r))
+      (else fail))))
+
+
+(define bit-ando
+  (lambda (x y r)
+    (conde
+      ((== 0 x) (== 0 y) (== 0 r))
+      ((== 1 x) (== 0 y) (== 0 r))
+      ((== 0 x) (== 1 y) (== 0 r))
+      ((== 1 x) (== 1 y) (== 1 r))
+      (else fail))))
+
+
+(define build-num
+  (lambda (n)
+    (cond
+      ((zero? n) '())
+      ((and (not (zero? n)) (even? n))
+            (cons 0 (build-num (/ n 2))))
+      ((odd? n)
+        (cons 1
+              (build-num (/ (- n 1) 2)))))))
+
+
+(define poso
+  (lambda (n)
+    (fresh (a d)
+      (== (cons a d) n))))
+
+
+(define >1o
+  (lambda (n)
+    (fresh (a ad dd)
+      (== (cons a (cons ad dd)) n))))
+
+
+(define width
+  (lambda (n)
+    (cond
+      ((null? n) 0)
+      ((pair? n) (+ (width (cdr n)) 1))
+      (else 1))))
+
+
+;; Skip Chap 08
+;; ============
+;; The chapter is skipped since it builds on chap 07 and there
+;; is nothing new as far as I am concerned
