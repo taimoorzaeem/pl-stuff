@@ -312,3 +312,19 @@
 (define ext-s
   (lambda (x v s)
     (cons '(x . v) s)))
+
+
+;; Chap 10
+
+(define not-pastao
+  (lambda (x)
+    (conda
+      ((== 'pasta x) fail)
+      (else (== 'spaghetti x)))))
+
+
+(define onceo
+  (lambda (g)
+    (condu
+      (g succeed)
+      (else fail))))
