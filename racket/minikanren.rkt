@@ -303,3 +303,12 @@
 ;; ============
 ;; The chapter is skipped since it builds on chap 07 and there
 ;; is nothing new as far as I am concerned
+
+
+;; Chap 09
+
+(define empty-s '())
+
+(define ext-s
+  (lambda (x v s)
+    (cons '(x . v) s)))
