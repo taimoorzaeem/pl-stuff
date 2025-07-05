@@ -1,2 +1,3 @@
-# functional-stuff
-These are some functional programs that I wrote.
+# pl-stuff
+
+This repository contains programs and write-ups related to programming language theory and research.
