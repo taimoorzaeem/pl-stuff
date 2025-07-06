@@ -47,8 +47,8 @@
 ;; The Axioms of Cons (initial)
 
 (dethm atom/cons (x y) (equal (atom (cons x y)) 'nil))
-(dethm atom/car  (x y) (equal (atom (car  x y)) x))
-(dethm atom/cdr  (x y) (equal (atom (cdr  x y)) y))
+(dethm car/cons  (x y) (equal (car (cons  x y)) x))
+(dethm cdr/cons  (x y) (equal (cdr (cons  x y)) y))
 
 ;; The Axioms of Equal (initial)
 
@@ -104,3 +104,38 @@
 ;;       (cons n '(other answer)))
 ;;     (cons (cons n '(else))
 ;;       (cons n '(other else)))))
+
+
+;; Chap 03
+
+(defun pair (x y)
+  (cons x (cons y '())))
+
+(defun first-of (x)
+  (car x))
+
+(defun second-of (x)
+  (car (cdr x)))
+
+;; Proof:
+;; A proof is a sequence of rewriting steps
+;; that ENDS IN 't. If we can rewrite a claim,
+;; step by step, to 't, then that claim is a
+;; theorem.
+
+(dethm first-of-pair (a b)
+  (equal (first-of (pair a b)) a))
+
+(dethm second-of-pair (a b)
+  (equal (second-of (pair a b)) b))
+
+(defun in-pair? (xs)
+  (iff (equal (first-of xs) '?)
+       't
+       (equal (second-of xs) '?)))
+
+(dethm in-first-of-pair (b)
+  (equal (in-pair? (pair '? b)) 't))
+
+(dethm in-second-of-pair (a)
+  (equal (in-pair? (pair a '?)) 't))
