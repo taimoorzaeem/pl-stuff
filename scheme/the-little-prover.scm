@@ -161,3 +161,52 @@
           y)
       (cons (sub x (car y))
         (sub x (cdr y)))))
+
+
+;; Chap 05
+
+(defun memb? (xs)
+  (if (atom xs)
+      'nil
+      (if (equal (car xs) '?)
+          't
+          (memb? (cdr xs)))))
+
+
+(defun remb (xs)
+  (if (atom xs)
+      '()
+      (if (equal (car xs) '?)
+          (remb (cdr xs))
+          (cons (car xs)
+            (remb (cdr xs))))))
+
+
+(dethm memb?/remb0 ()
+  (equal (memb? (remb '())) 'nil))
+
+;; Insight: Rewrite from the Inside Out
+;; ====================================
+;; Rewrite an expression from the “inside” out, starting inside
+;; if answers, if elses, and function arguments. Simplify the
+;; arguments of a function application as much as possible,
+;; then use the Law of Defun to replace the application with
+;; the function’s body. Rewrite if questions as necessary to
+;; use theorems that require premises. Proceed to outer
+;; expressions when inner expressions cannot be simpliﬁed.
+
+
+;; If Lifting
+;; ==========
+;; (original-context         (original-context
+;;   (original-focus ------>   (if Q
+;;     (if Q A E)))              (original-focus E)
+;;                               (original-focus E))
+
+(dethm memb?/remb1 (x1)
+  (equal (memb? (remb (cons x1 '())))
+         'nil))
+
+(dethm memb?/remb2 (x1 x2)
+  (equal (memb? (remb (cons x2 (cons x1 '()))))
+         'nil))
