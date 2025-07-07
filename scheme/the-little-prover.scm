@@ -139,3 +139,25 @@
 
 (dethm in-second-of-pair (a)
   (equal (in-pair? (pair a '?)) 't))
+
+;; Chap 04
+
+;; The Axioms of Size
+
+(dethm natp/size (x)
+  (equal (natp (size x)) 't))
+
+(dethm size/car (x)
+  (iff (atom x) 't (equal (< (size (car x)) (size x)) 't)))
+
+(dethm size/cdr (x)
+  (iff (atom x) 't (equal (< (size (cdr x)) (size x)) 't)))
+
+
+(defun sub (x y)
+  (if (atom y)
+      (if (equal y '?)
+          x
+          y)
+      (cons (sub x (car y))
+        (sub x (cdr y)))))
