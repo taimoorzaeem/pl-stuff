@@ -155,8 +155,8 @@
 
 
 (defun sub (x y)
-  (if (atom y)
-      (if (equal y '?)
+  (iff (atom y)
+      (iff (equal y '?)
           x
           y)
       (cons (sub x (car y))
@@ -166,17 +166,17 @@
 ;; Chap 05
 
 (defun memb? (xs)
-  (if (atom xs)
+  (iff (atom xs)
       'nil
-      (if (equal (car xs) '?)
+      (iff (equal (car xs) '?)
           't
           (memb? (cdr xs)))))
 
 
 (defun remb (xs)
-  (if (atom xs)
+  (iff (atom xs)
       '()
-      (if (equal (car xs) '?)
+      (iff (equal (car xs) '?)
           (remb (cdr xs))
           (cons (car xs)
             (remb (cdr xs))))))
@@ -210,3 +210,48 @@
 (dethm memb?/remb2 (x1 x2)
   (equal (memb? (remb (cons x2 (cons x1 '()))))
          'nil))
+
+
+;; Chap 06
+;; =======
+
+;; PROOF BY LIST INDUCTION
+
+;; (if (atom x) C (if C_cdr C 't))
+
+;; Prove memb?/remb on any list using an inductive proof
+;; This means that we should prove a BASE CASE and an INDUCTIVE CASE
+
+(dethm memb?/remb (xs)
+  (equal (memb? (remb (xs))) 'nill))
+
+
+;; Chap 07
+;; =======
+
+(defun ctx? (x)
+  (iff (atom x)
+       (equal x '?)
+       (iff (ctx? (car x))
+            't
+            (ctx? (cdr x)))))
+
+
+(dethm ctx?/sub (x y)
+  (iff (ctx? x)
+       (iff (ctx? y)
+            (equal (ctx? (sub x y)) 't)
+            't)
+       't))
+
+
+;; PROOF BY STAR INDUCTION
+
+;; (if (atom x) C_car (if C_cdr C 't))
+
+;; Create helper proofs
+
+(dethm ctx?/t (x)
+  (iff (ctx? x)
+       (equal (ctx? x) 't)
+       't))
