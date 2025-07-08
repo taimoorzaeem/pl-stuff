@@ -255,3 +255,45 @@
   (iff (ctx? x)
        (equal (ctx? x) 't)
        't))
+
+
+;; Chap 08
+
+(defun member? (x ys)
+  (iff (atom x)
+       'nil
+       (iff (equal (car ys) x)
+            't
+            (member? x (cdr ys)))))
+
+
+(defun set? (xs)
+  (iff (atom xs)
+       't
+       (iff (member? (car xs) (cdr xs))
+            'nil
+            (set? (cdr xs)))))
+
+
+(defun add-atoms (x ys)
+  (iff (atom x)
+       (iff (member? x ys)
+            ys
+            (cons x ys))
+       (add-atoms (car x)
+         (add-atoms (cdr x) ys))))
+
+;; The functions that contain multiple recursive calls should also have
+;; as many measures (conjunction of measure per each recursive call)
+;;
+;; Totality claim for add-atoms is:
+;; (if (natp (size x))
+;;      (if (atom x)
+;;         't
+;;          (if (< (size (car x)) (size x))    ;; conjunction using if
+;;              (< (size (cdr x)) (size x))
+;;              'nil))
+;;      'nil)
+
+(defun atoms (x)
+  (add-atoms x '()))
