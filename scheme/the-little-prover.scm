@@ -246,8 +246,12 @@
 
 
 ;; PROOF BY STAR INDUCTION
-
-;; (if (atom x) C_car (if C_cdr C 't))
+;; =======================
+;;
+;; (if (atom x) C (if C_car (if C_cdr C 't) 't))
+;; =============================================
+;;    where C_car is C with x replaced by (car x) and C_cdr is C with
+;;;   x replaced by (cdr x)
 
 ;; Create helper proofs
 
