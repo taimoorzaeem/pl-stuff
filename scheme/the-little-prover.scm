@@ -301,3 +301,35 @@
 
 (defun atoms (x)
   (add-atoms x '()))
+
+
+;; Chap 09
+;; =======
+;; This chapter is all about DEFUN INDUCTION.
+;; I still quite not understand this induction because it is slightly
+;; harder than list or star induction. Revisit this chapter later for
+;; more in-depth understanding.
+
+(dethm set?/atoms (a)
+  (equal (set? (atoms a)) 't))
+
+
+(dethm set?/add-atoms (a)
+  (equal (set? (add-atoms a '())) 't))
+
+;; A more general claim then the previous one
+(dethm set?/add-atoms (a bs)
+  (iff (set? bs)
+       (equal (set? (add-atoms a bs)) 't)
+       't))
+
+;; Helper theorems
+(dethm set?/t (xs)
+  (iff (set? xs)
+       (equal (set? xs) 't)
+       't))
+
+(dethm set?/nil (xs)
+  (iff (set? xs)
+       't
+       (equal (set? xs) 'nil)))
