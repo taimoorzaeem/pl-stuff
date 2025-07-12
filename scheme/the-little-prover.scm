@@ -333,3 +333,75 @@
   (iff (set? xs)
        't
        (equal (set? xs) 'nil)))
+
+
+;; Chap 10
+;; =======
+
+(defun rotate (x)
+  (cons (car (car x))
+    (cons (cdr (car x)) (cdr x))))
+
+
+(dethm rotate/cons (x y z)
+  (equal (rotate (cons (cons x y) z))
+         (cons x (cons y z))))
+
+
+(defun align (x)
+  (iff (atom x)
+       x
+       (iff (atom (car x))
+            (cons (car x) (align (cdr x)))
+            (align (rotate x)))))
+
+
+(defun wt (x)
+  (iff (atom x)
+       '1
+       (+ (+ (wt (car x)) (wt (car x)))
+          (wt (cdr x)))))
+
+
+;; The Axioms of + and <
+
+(dethm identity-+ (x)
+  (iff (natp x)
+       (equal (+ '0 x) x)
+       't))
+
+
+(dethm commute-+ (x y)
+  (equal (+ x y) (+ y x)))
+
+
+(dethm associate-+ (x y z)
+  (equal (+ x (+ y z)) (+ (+ x y) z)))
+
+
+(dethm positive-+ (x y)
+  (iff (< '0 x)
+       (iff (< '0 y)
+            (equal (< '0 (+ x y)) 't)
+            't)
+       't))
+
+
+(dethm natp/+ (x y)
+  (iff (natp x)
+       (iff (natp y)
+            (equal (natp (+ x y)) 't)
+            't)
+       't))
+
+
+(dethm common-addends-< (x y z)
+  (equal (< (+ x z) (+ y z)) (< x y)))
+
+
+(dethm positive/wt (x)
+  (equal (< '0 (wt x)) 't))
+
+
+(dethm align/align (x)
+  (equal (align (align x)) (align x)))
