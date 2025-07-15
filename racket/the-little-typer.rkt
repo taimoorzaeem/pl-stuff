@@ -254,3 +254,134 @@
 ;; ======================
 ;; If X is a type and e is an X, then (the X e)
 ;; is the same X as e.
+
+
+;; Chap 03
+;; =======
+
+;; Sameness
+;; ========
+;; If a “same as” chart could show that two expressions are
+;; the same, then this fact can be used anywhere without
+;; further justiﬁcation. “Same As” charts are only to help
+;; build understanding.
+
+
+;; Total Function
+;; ==============
+;; A function that always assigns a value to every possible
+;; argument is called a total function.
+
+
+;; The Law of iter-Nat
+;; ===================
+;; If target is a Nat, base is an X, and step is an
+;; (→ X X), then (iter-Nat target base step) is an X.
+
+
+;; The First Commandment of iter-Nat
+;; =================================
+;; If (iter-Nat zero base step)
+;; is an X, then it is the same X as base.
+
+
+;; The Second Commandment of iter-Nat
+;; ==================================
+;; If (iter-Nat (add1 n) base step) is an X , then it
+;; is the same X as (step (iter-Nat n base step)).
+
+(claim step-+
+  (-> Nat Nat))
+(define step-+
+  (lambda (n-1)
+    (add1 n-1)))
+
+;; The mysterious + is now defined. This is cool as hell.
+(claim +
+  (-> Nat Nat Nat))
+(define +
+  (lambda (n j)
+    (iter-Nat n
+      j
+      step-+)))
+
+
+;; Define gauss using rec-Nat
+
+(claim step-gauss
+  (-> Nat Nat Nat))
+(define step-gauss
+  (lambda (n-1 gauss_n-1)
+    (+ (add1 n-1) gauss_n-1)))
+
+(claim gauss
+  (-> Nat Nat))
+(define gauss
+  (lambda (n)
+    (rec-Nat n
+      0
+      step-gauss)))
+
+;; NOTE: rec-Nat is also called primitive recursion.
+
+;; THIS IS EXTREMELY IMPORTANT
+;;========================================================================
+;; When they say "recursion is not allowed," they're referring to general
+;; recursive definitions where you can call a function on arbitrary arguments,
+;; potentially leading to non-termination. This would break the type system's
+;; guarantees about totality.
+;;
+;; However, iter-Nat and rec-Nat are not general recursion - they are
+;; eliminators (also called recursion principles) that are built into
+;; the type system itself. These are carefully designed to ensure termination.
+;;
+;; iter-Nat performs primitive recursion - it can only make recursive calls on
+;; structurally smaller arguments (the predecessor of a natural number).
+;;
+;; rec-Nat is similar but allows the recursive step to depend on both the
+;; predecessor and the result of the recursive call on that predecessor.
+;;
+;; The type system ensures these always terminate because:
+;;
+;; 1. They can only recurse on structurally smaller data
+;; 2. Natural numbers are well-founded (you can't have an infinite
+;;    descending chain)
+;; 3. The recursion follows the exact structure of the data type
+;;
+;; The eliminators give you the power of recursion while maintaining the type
+;; system's safety guarantees. This is a common pattern in dependently typed
+;; languages - you get structured, provably terminating recursion rather than
+;; arbitrary recursion.
+;; =========================================================================
+
+(claim step-*
+  (-> Nat Nat Nat Nat))
+(define step-*
+  (lambda (j n-1 *n-1)
+    (+ j *n-1)))
+
+(claim *
+  (-> Nat Nat Nat))
+(define *
+  (lambda (n j)
+    (rec-Nat n
+    0
+    (step-* j))))
+
+
+;; The Law of rec-Nat
+;; ==================
+;; If target is a Nat, base is an X, and step is an
+;; (→ Nat X X) then (rec-Nat target base step) is an X.
+
+
+;; The First Commandment of rec-Nat
+;; ================================
+;; If (rec-Nat zero base step) is an X  then it is the same
+;; X as base.
+
+
+;; The Second Commandment of rec-Nat
+;; =================================
+;; If (rec-Nat (add1 n) base step) is an X, then it is the
+;; same X as (step n (rec-Nat n base step)).
