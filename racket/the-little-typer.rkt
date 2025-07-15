@@ -239,3 +239,18 @@
 ;;           (cons
 ;;             (+ a1 a2)
 ;;             (+ d1 d2))))))))
+
+
+;; Recess
+;; ======
+
+;; The Law of the
+;; ==============
+;; If X is a type and e is an X, then (the X e)
+;; is an X.
+
+
+;; The Commandment of the
+;; ======================
+;; If X is a type and e is an X, then (the X e)
+;; is the same X as e.
