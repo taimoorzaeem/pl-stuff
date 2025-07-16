@@ -385,3 +385,92 @@
 ;; =================================
 ;; If (rec-Nat (add1 n) base step) is an X, then it is the
 ;; same X as (step n (rec-Nat n base step)).
+
+
+;; Chap 04
+;; =======
+
+;; The Intermediate Law of Application
+;; ===================================
+;; If f is a (Pi ((Y U)) X) and Z is a U, then (f Z) is an X
+;; where every Y has been consistently replaced by Z.
+;; NOTE(self): Basically lambda expression is applied to values
+;;             and Pi expressions are applied to types
+
+
+;; flip function
+(claim flip
+  (Pi ((A U)
+      (D U))
+    (-> (Pair A D)
+      (Pair D A))))
+(define flip
+  (lambda (A D)
+    (lambda (p)
+      (cons (cdr p) (car p)))))
+
+
+;; elim-Pair
+(claim elim-Pair
+  (Pi ((A U)
+       (D U)
+       (X U))
+    (-> (Pair A D)
+        (-> A D
+            X)
+       X)))
+(define elim-Pair
+  (lambda (A D X)
+    (lambda (p f)
+      (f (car p) (cdr p)))))
+
+
+;; kar function
+(claim kar
+  (-> (Pair Nat Nat)
+    Nat))
+(define kar
+  (lambda (p)
+    (elim-Pair
+      Nat Nat
+      Nat
+      p
+      (lambda (a d)
+        a))))
+
+;; kdr function
+(claim kdr
+  (-> (Pair Nat Nat)
+    Nat))
+(define kdr
+  (lambda (p)
+    (elim-Pair
+      Nat Nat
+      Nat
+      p
+      (lambda (a d)
+        d))))
+
+;; swap function
+(claim swap
+  (-> (Pair Nat Atom)
+    (Pair Atom Nat)))
+(define swap
+  (lambda (p)
+    (elim-Pair
+      Nat Atom
+      (Pair Atom Nat)
+      p
+      (lambda (a d)
+        (cons d a)))))
+
+
+;; general-purpose twin function for any type
+;; This encapsulated the power of dependent types
+(claim twin
+  (Pi ((Y U))
+    (-> Y (Pair Y Y))))
+(define twin
+  (lambda (Y)
+    (lambda (x)
+      (cons x x))))
