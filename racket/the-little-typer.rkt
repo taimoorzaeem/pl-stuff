@@ -474,3 +474,105 @@
   (lambda (Y)
     (lambda (x)
       (cons x x))))
+
+
+;; Chap 05
+;; =======
+
+;; The Law of List
+;; ===============
+;; If E is a type, then (List E) is a type.
+
+;; The Law of nil
+;; ==============
+;; nil is a (List E), no matter what type E is.
+
+;; The Law of ::
+;; =============
+;; If e is an E and es is a (List E),
+;; then (:: e es) is a (List E).
+;; NOTE: Jeez, that's so basic. :'(
+
+
+;; BTW, this is how you define this in haskell:
+
+;; data List e
+;;   | Cons e (List e)
+;;   = Nil
+;;
+;; NOTE: Infact, [e] and (:) is just syntactic sugar on this
+;;       and you can even do that by yourself using template haskell.
+
+
+;; The Law of rec-List
+;; ===================
+;; If target is a (List E), base is an X, and step is an
+;; (-> E (List E) X X), then (rec-List target base step) is an X.
+
+
+;; The First Commandment of rec-List
+;; =================================
+;; If (rec-List nil base step) is an X, then it is
+;; the same X as base.
+
+
+;; The Second Commandment of rec-List
+;; ==================================
+;; If (rec-List (:: e es) base step) is an X, then it is the
+;; same X as (step e es (rec-List es base step)).
+
+
+(claim condiments
+  (List Atom))
+(define condiments
+  (:: 'chives
+    (:: 'mayonnaise nil)))
+
+
+(claim step-length
+  (Pi ((E U))
+    (-> E (List E) Nat
+      Nat)))
+(define step-length
+  (lambda (E)
+    (lambda (e es length_es)
+      (add1 length_es))))
+
+
+(claim length
+  (Pi ((E U))
+    (-> (List E) Nat)))
+(define length
+  (lambda (E)
+    (lambda (es)
+      (rec-List es
+        0
+        (step-length E)))))
+
+
+;; List Entry Types
+;; ================
+;; All the entries in a list must be the same type.
+;; NOTE: Duhh??
+
+
+(claim step-append
+  (Pi ((E U))
+    (-> E (List E) (List E)
+      (List E))))
+(define step-append
+  (lambda (E)
+    (lambda (e es append_es)
+      (:: e append_es))))
+
+
+(claim append
+  (Pi ((E U))
+    (-> (List E) (List E)
+      (List E))))
+(define append
+  (lambda (E)
+    (lambda (start end)
+      (rec-List start
+        end
+        (step-append E)))))
