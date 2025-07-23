@@ -700,3 +700,81 @@
   (lambda (E l)
     (lambda (es)
       (tail es))))
+
+
+;; Chap 07
+;; =======
+
+
+;; Dependent Types
+;; ===============
+;; A type that is determined by something that is not a type
+;; is called a dependent type.
+
+;; Motive
+;; ======
+;; ind-Nat needs an extra argument, called the motive and it
+;; can be any (-> Nat U). So motive is a function whose body is U.
+
+;; NOTE: So, basically with dependent types, recursion becomes slightly
+;;       tricky because the values we recurse on have different types.
+;;       Hence, we need something more powerful like ind-Nat.
+
+;; Use ind-Nat for Dependent Types
+;; ===============================
+;; Use ind-Nat instead of rec-Nat when the rec-Nat- or ind-Nat-
+;; expression’s type depends on the target Nat. The ind-Nat-
+;; expression’s type is the motive applied to the target.
+
+
+;; The Law of ind-Nat
+;; ==================
+;; If target is a Nat, mot is an (→ Nat U), base is a (mot zero),
+;; and step is a (Π ((n-1 Nat)) (→ (mot n-1) (mot (add1 n-1)))),
+;; then (ind-Nat target mot base step) is a (mot target).
+
+
+;; The First Commandment of ind-Nat
+;; ================================
+;; The ind-Nat-expression (ind-Nat zero mot base step) is the
+;; same (mot zero) as base.
+
+
+;; The Second Commandment of ind-Nat
+;; =================================
+;; The ind-Nat-expression (ind-Nat (add1 n) mot base step) and
+;; (step n (ind-Nat n mot base step)) are the same (mot (add1 n)).
+
+
+;; Induction on Natural Numbers
+;; ============================
+;; Building a value for any natural number by giving a value
+;; for zero and a way to transform a value for n into a value
+;; for n + 1 is called induction on natural numbers.
+
+
+(claim mot-peas
+  (-> Nat
+    U))
+(define mot-peas
+  (lambda (k)
+    (Vec Atom k)))
+
+(claim step-peas
+  (Pi ((l-1 Nat))
+    (-> (mot-peas l-1)
+      (mot-peas (add1 l-1)))))
+(define step-peas
+  (lambda (l-1)
+    (lambda (peas_l-1)
+      (vec:: 'pea peas_l-1))))
+
+(claim peas
+  (Pi ((how-many-peas Nat))
+    (Vec Atom how-many-peas)))
+(define peas
+  (lambda (how-many-peas)
+    (ind-Nat how-many-peas
+      mot-peas
+      vecnil
+      step-peas)))
