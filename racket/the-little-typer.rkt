@@ -778,3 +778,73 @@
       mot-peas
       vecnil
       step-peas)))
+
+
+(claim last
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E (add1 l))
+       E)))
+
+
+(claim base-last
+  (Pi ((E U))
+    (-> (Vec E (add1 zero))
+      E)))
+(define base-last
+  (lambda (E)
+    (lambda (es)
+      (head es))))
+
+
+;; ind-Nat’s Base Type
+;; ===================
+;; In ind-Nat, the base’s type is the motive applied to
+;; the target zero.
+
+
+(claim mot-last
+  (-> U Nat
+    U))
+(define mot-last
+  (lambda (E k)
+    (-> (Vec E (add1 k))
+      E)))
+
+
+;; ind-Nat’s Step Type
+;; ===================
+;; In ind-Nat, the step must take two arguments: some Nat n
+;; and an almost-answer whose type is the motive applied
+;; to n. The type of the answer from the step is the motive
+;; applied to (add1 n). The step’s type is:
+;; (Pi ((n Nat))
+;;    (→ (mot n)
+;;      (mot (add1 n))))
+
+
+(claim step-last
+  (Pi ((E U)
+       (l-1 Nat))
+    (-> (mot-last E l-1)
+      (mot-last E (add1 l-1)))))
+(define step-last
+  (lambda (E l-1)
+    (lambda (last_l-1)
+      (lambda (es)
+        (last_l-1 (tail es))))))
+
+(define last
+  (lambda (E l)
+    (ind-Nat l
+      (mot-last E)
+      (base-last E
+      (step-last E)))))
+
+
+;; Readable Expressions
+;; ====================
+;; Getting the right answer is worthless if we do not know
+;; that it is correct. Understanding the answer is at least
+;; as important as having the correct answer.
+;; NOTE: Correctness matters so much.
