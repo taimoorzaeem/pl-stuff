@@ -838,8 +838,8 @@
   (lambda (E l)
     (ind-Nat l
       (mot-last E)
-      (base-last E
-      (step-last E)))))
+      (base-last E)
+      (step-last E))))
 
 
 ;; Readable Expressions
@@ -848,3 +848,138 @@
 ;; that it is correct. Understanding the answer is at least
 ;; as important as having the correct answer.
 ;; NOTE: Correctness matters so much.
+
+;; IMPORTANT
+;; =========
+;; Use TODO keyword in pi expressions and pie will tell
+;; the supposed type to be in that expression.
+
+;; Chap 08
+;; =======
+
+
+(claim incr
+  (-> Nat
+    Nat))
+(define incr
+  (lambda (n)
+    (iter-Nat n
+      1
+      (+ 1))))
+
+
+;; The Law of =
+;; ============
+;; An expression (= X from to) is a type if X is a type,
+;; from is an X , and to is an X.
+
+
+;; Reading FROM and TO as Nouns
+;; ============================
+;; Because from and to are convenient names,
+;; the corresponding parts of an =-expression are
+;; referred to as the from and the to.
+
+;; IMPORTANT:
+;; - Types can sometimes be read as statements. Statements
+;;   are sometimes called propositions.
+;; - Truth means that we have evidence. This evidence is
+;;   called a proof.
+
+;; The Law of same
+;; ===============
+;; The expression (same e) is an (= X e e) if an e is an X.
+
+
+(claim +1=add1
+  (Pi ((n Nat))
+    (= Nat (+ 1 n) (add1 n))))
+(define +1=add1
+  (lambda (n)
+    (same (add1 n))))
+
+
+(claim incr=add1
+  (Pi ((n Nat))
+    (= Nat (incr n) (add1 n))))
+
+
+;; Neutral Expressions
+;; ===================
+;; Variables that are not defined are neutral. If the target of
+;; an eliminator expression is neutral, then the eliminator
+;; expression is neutral.
+
+;; IMPORTANT:
+;;   (lambda (x) (f x)) is the same as f.
+;;   These are sometimes called eta-long normal forms.
+
+(claim base-incr=add1
+  (= Nat (incr zero) (add1 zero)))
+(define base-incr=add1
+  (same (add1 zero)))
+
+
+(claim mot-incr=add1
+  (-> Nat
+    U))
+(define mot-incr=add1
+  (lambda (k)
+    (= Nat (incr k) (add1 k))))
+
+
+;; "If" and "Then" as Types
+;; ========================
+;; The expression (-> X Y) can be read as the
+;; statement, "if X then Y".
+
+
+(claim step-incr=add1
+  (Pi ((n-1 Nat))
+    (-> (= Nat
+          (incr n-1)
+          (add1 n-1))
+      (= Nat
+        (add1
+          (incr n-1))
+        (add1
+          (add1 n-1))))))
+
+
+;; Observation about incr
+;; ======================
+;; No matter which Nat n is, (incr (add1 n))
+;; is the same Nat as (add1 (incr n)).
+
+
+;; The Law of cong
+;; ===============
+;; If f is an (-> X Y) and target is an (= X from to),
+;; then (cong target f) is an (= Y (f from) (f to)).
+;; NOTE: cong is short for congruence.
+
+(define step-incr=add1
+  (lambda (n-1)
+    (lambda (incr=add1_n-1)
+      (cong incr=add1_n-1 (+ 1)))))
+
+
+(define incr=add1
+  (lambda (n)
+    (ind-Nat n
+      mot-incr=add1
+      base-incr=add1
+      step-incr=add1)))
+
+
+;; The Commandment of cong
+;; =======================
+;; If x is an X, and f is an (-> X Y),
+;; then (cong (same x) f) is the same
+;; (= Y (f x) (f x)) as (same (f x)).
+
+;; NOTE: The interplay between judging sameness and stating
+;;       equality is at the heart of working with dependent
+;;       types. This ﬁrst taste only scratches the surface.
+
+;; NOTE: Damn this chapter was heavy. I need to breathe for real.
