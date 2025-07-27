@@ -2,7 +2,13 @@
 
 This repository contains programs and write-ups related to programming language theory and research.
 
-It mostly contains some practice work for all the PL related book I have read. These are:
+It mostly contains some practice work for all the PL related books I have read.
+
+## Haskell
+
+The haskell directory contains solutions of exercises from ezyang's [pl-class-public](https://github.com/ezyang/pl-class-public). These exercises were pretty fun and taught me alot about haskell. There is also video lectures on ezyang's youtube channel here [PL Class - Spring 2022](https://youtube.com/playlist?list=PL9sqUxos-K_dOV8k2q6JZN-u78BNJVhwd&si=rU2TojF0QeOX8s5v).
+
+## Racket/Scheme
 
 ### The Little Schemer
 
