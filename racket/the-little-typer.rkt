@@ -5,6 +5,13 @@
 
 #lang pie
 
+;; IMPORTANT DISTINCTION
+;; =====================
+;; In dependent types, proofs are constructed instead of rewrited to be
+;; to prove it. In the little prover, proof were kind of automated using
+;; rewriting rules. In the little typer, we construct proofs using 
+;; dependent type theory.
+
 ;; Chap 01
 ;; =======
 
@@ -716,6 +723,14 @@
 ;; ind-Nat needs an extra argument, called the motive and it
 ;; can be any (-> Nat U). So motive is a function whose body is U.
 
+;; NOTE: Motive just tell the type of what we are trying to prove. Let's
+;;       say we are proving something over Nat, which has two cases, zero
+;;       and add1, so motive is (-> Nat U). It seems trivial, but it gets
+;;       extremely important with more complicated dependent types. Another
+;;       reason why this is useful is because some values are same, but
+;;       they are not equal, that is, different types but their values are
+;;       same.
+
 ;; NOTE: So, basically with dependent types, recursion becomes slightly
 ;;       tricky because the values we recurse on have different types.
 ;;       Hence, we need something more powerful like ind-Nat.
@@ -983,3 +998,229 @@
 ;;       types. This ﬁrst taste only scratches the surface.
 
 ;; NOTE: Damn this chapter was heavy. I need to breathe for real.
+
+
+;; Chap 09
+;; =======
+
+
+;; The Law of replace
+;; ==================
+;; If target is an (= X from to), mot is an (-> X U), and base
+;; is a (mot from) then (replace target mot base) is a (mot to).
+
+
+(claim double
+  (-> Nat
+    Nat))
+(define double
+  (lambda (n)
+    (iter-Nat n
+      0
+      (+ 2))))
+
+
+(claim twice
+  (-> Nat
+    Nat))
+(define twice
+  (lambda (n)
+    (+ n n)))
+
+;; You can write statements such as:
+;;    "For every Nat n, (twice n) equals (double n)."
+;; as a type. i.e:
+
+(claim twice=double
+  (Pi ((n Nat))
+    (= Nat (twice n) (double n))))
+
+;; This type represents a proposition, which needs a proof, the program we
+;; write for this would be its proof. Who knew types can be this expressive!
+;;
+;; This is a little bit complex and would need some other auxiliary
+;; proofs. Let's begin:
+
+
+(claim add1+=+add1
+  (Pi ((n Nat)
+       (j Nat))
+    (= Nat
+      (add1 (+ n j))
+      (+ n (add1 j)))))
+
+
+(claim mot-add1+=+add1
+  (-> Nat Nat
+    U))
+(define mot-add1+=+add1
+  (lambda (j k)
+    (= Nat
+      (add1 (+ k j))
+      (+ k (add1 j)))))
+
+
+(claim step-add1+=+add1
+  (Pi ((j Nat)
+       (n-1 Nat))
+    (-> (mot-add1+=+add1 j n-1)
+      (mot-add1+=+add1 j (add1 n-1)))))
+(define step-add1+=+add1
+  (lambda (j n-1)
+    (lambda (add1+=+add1_n-1)
+      (cong add1+=+add1_n-1 (+ 1)))))
+
+
+(define add1+=+add1
+  (lambda (n j)
+    (ind-Nat n
+      (mot-add1+=+add1 j)
+      (same (add1 j))
+      (step-add1+=+add1 j))))
+
+
+;; Now we move towards proving twice = double
+
+(claim mot-twice=double
+  (-> Nat
+    U))
+(define mot-twice=double
+  (lambda (n)
+    (= Nat
+      (twice n)
+      (double n))))
+
+
+(claim step-twice=double
+  (Pi ((n-1 Nat))
+    (-> (mot-twice=double n-1)
+      (mot-twice=double (add1 n-1)))))
+
+;; Observation about +
+;; ===================
+;; No matter which Nats j and k are, (+ (add1 j) k)
+;; is the same Nat as (add1 (+ j k)).
+
+
+(claim mot-step-twice=double
+  (-> Nat Nat
+    U))
+(define mot-step-twice=double
+  (lambda (n-1 k)
+    (= Nat
+      (add1 k)
+      (add1 (add1 (double n-1))))))
+
+
+(define step-twice=double
+  (lambda (n-1)
+    (lambda (twice=double_n-1)
+      (replace (add1+=+add1 n-1 n-1)
+        (mot-step-twice=double n-1)
+        (cong twice=double_n-1
+          (+ 2))))))
+
+
+(define twice=double
+  (lambda (n)
+    (ind-Nat n
+      mot-twice=double
+      (same zero)
+      step-twice=double)))
+
+
+(claim twice=double-of-17
+  (= Nat (twice 17) (double 17)))
+
+(claim twice=double-of-17-again
+  (= Nat (twice 17) (double 17)))
+
+(define twice=double-of-17
+  (twice=double 17))
+
+;; We can do it with congruence as well:
+(define twice=double-of-17-again
+  (same 34))
+
+
+(claim twice-Vec
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E l)
+      (Vec E (twice l)))))
+
+
+(claim double-Vec
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E l)
+      (Vec E (double l)))))
+
+(claim base-double-Vec
+  (Pi ((E U))
+    (-> (Vec E zero)
+      (Vec E (double zero)))))
+(define base-double-Vec
+  (lambda (E)
+    (lambda (es)
+      vecnil)))
+
+
+(claim mot-double-Vec
+  (-> U Nat
+    U))
+(define mot-double-Vec
+  (lambda (E k)
+    (-> (Vec E k)
+      (Vec E (double k)))))
+
+
+(claim step-double-Vec
+  (Pi ((E U)
+       (l-1 Nat))
+    (-> (-> (Vec E l-1)
+          (Vec E (double l-1)))
+      (-> (Vec E (add1 l-1))
+        (Vec E (double (add1 l-1)))))))
+(define step-double-Vec
+  (lambda (E l-1)
+    (lambda (double-Vec_l-1)
+      (lambda (es)
+        (vec:: (head es)
+          (vec:: (head es)
+            (double-Vec_l-1
+              (tail es))))))))
+
+(define double-Vec
+  (lambda (E l)
+    (ind-Nat l
+      (mot-double-Vec E)
+      (base-double-Vec E)
+      (step-double-Vec E))))
+
+
+;; Solve Easy Problems First
+;; =========================
+;; If two functions produce equal results, then use the easier
+;; one when defining a dependent function, and then use
+;; "replace" to give it the desired type.
+
+
+(define twice-Vec
+  (lambda (E l)
+    (lambda (es)
+      (replace
+        (symm (twice=double l))
+        (lambda (k)
+          (Vec E k))
+        (double-Vec E l es)))))
+
+
+;; The Law of symm
+;; ===============
+;; If e is an (= X from to), then (symm e) is an (= X to from).
+
+;; The Commandment of symm
+;; =======================
+;; If x is an X, then (symm (same x)) is the same (= X x x)
+;; as (same x).
