@@ -1357,3 +1357,245 @@
       (mot-list->vec E)
       vecnil
       (step-list->vec E))))
+
+
+;; Chap 11
+;; =======
+
+(claim vec-append
+  (Pi ((E U)
+       (l Nat)
+       (j Nat))
+    (-> (Vec E l) (Vec E j)
+      (Vec E (+ l j)))))
+
+
+;; The Law of ind-Vec
+;; ==================
+;; If n is a Nat, target is a (Vec E n), mot is a
+;; (Pi ((k Nat))
+;;   (-> (Vec E k )
+;;     U)),
+;; base is a (mot zero vecnil), and step is a
+;; (Pi ((k Nat)
+;;      (h E)
+;;      (t (Vec E k)))
+;;   (-> (mot k t)
+;;     (mot (add1 k) (vec:: h t))))
+;; then
+;; (ind-Vec n target
+;;   mot
+;;   base
+;;   step)
+;; is a (mot n target).
+
+
+;; The First Commandment of ind-Vec
+;; ================================
+;; The ind-Vec-expression
+;; (ind-Vec zero vecnil
+;;   mot
+;;   base
+;;   step)
+;; is the same (mot zero vecnil) as base.
+
+
+;; The Second Commandment of ind-Vec
+;; =================================
+;; The ind-Vec-expression
+;; (ind-Vec (add1 n) (vec:: e es)
+;;   mot
+;;   base
+;;   step)
+;; is the same (mot (add1 n) (vec:: e es)) as
+;; (step n e es
+;;   (ind-Vec n es
+;;     mot
+;;     base
+;;     step)).
+
+
+(claim mot-vec-append
+  (Pi ((E U)
+       (j Nat)
+       (k Nat))
+    (-> (Vec E k)
+      U)))
+(define mot-vec-append
+  (lambda (E j k)
+    (lambda (es)
+      (Vec E (+ k j)))))
+
+
+(claim step-vec-append
+  (Pi ((E U)
+       (j Nat)
+       (k Nat)
+       (e E)
+       (es (Vec E k)))
+    (-> (mot-vec-append E j
+          k es)
+      (mot-vec-append E j
+        (add1 k) (vec:: e es)))))
+(define step-vec-append
+  (lambda (E j l-1 e es)
+    (lambda (vec-append_es)
+      (vec:: e vec-append_es))))
+
+
+(define vec-append
+  (lambda (E l j)
+    (lambda (es end)
+      (ind-Vec l es
+        (mot-vec-append E j)
+        end
+        (step-vec-append E j)))))
+
+
+;; NOTE: Sometimes, using a more specific type is called
+;; an intrinsic proof. Similarly, using a separate proof
+;; is called extrinsic.
+
+
+(claim mot-vec->list
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E l)
+      U)))
+(define mot-vec->list
+  (lambda (E l)
+    (lambda (es)
+      (List E))))
+
+(claim step-vec->list
+  (Pi ((E U)
+       (l-1 Nat)
+       (e E)
+       (es (Vec E l-1)))
+    (-> (mot-vec->list E
+          l-1 es)
+      (mot-vec->list E
+        (add1 l-1) (vec:: e es)))))
+(define step-vec->list
+  (lambda (E l-1 e es)
+    (lambda (vec->list_es)
+      (:: e vec->list_es))))
+
+
+(claim vec->list
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E l)
+      (List E))))
+(define vec->list
+  (lambda (E l)
+    (lambda (es)
+      (ind-Vec l es
+        (mot-vec->list E)
+        nil
+        (step-vec->list E)))))
+
+
+(claim list->vec->list=
+  (Pi ((E U)
+       (es (List E)))
+    (= (List E)
+      es
+      (vec->list E
+        (length E es)
+        (list->vec E es)))))
+
+(claim mot-list->vec->list=
+  (Pi ((E U))
+    (-> (List E)
+      U)))
+(define mot-list->vec->list=
+  (lambda (E es)
+    (= (List E)
+      es
+      (vec->list E
+        (length E es)
+        (list->vec E es)))))
+
+
+(claim step-list->vec->list=
+  (Pi ((E U)
+       (e E)
+       (es (List E)))
+    (-> (mot-list->vec->list= E
+          es)
+      (mot-list->vec->list= E
+          (:: e es)))))
+
+;; Statement for "Two equal lists of treats"
+
+(claim Treat-Statement
+  U)
+(define Treat-Statement
+  (Pi ((some-treats (List Atom))
+       (more-treats (List Atom)))
+    (-> (= (List Atom)
+          some-treats
+          more-treats)
+      (= (List Atom)
+        (:: 'plattar some-treats)
+        (:: 'plattar more-treats)))))
+
+
+(claim ::-plattar
+  (-> (List Atom)
+    (List Atom)))
+(define ::-plattar
+  (lambda (tasty-treats)
+    (:: 'plattar tasty-treats)))
+
+
+(claim treat-proof
+  Treat-Statement)
+(define treat-proof
+  (lambda (some-treats more-treats)
+    (lambda (treats=)
+      (cong treats= ::-plattar))))
+
+
+(claim length-treats=
+  (Pi ((some-treats (List Atom))
+       (more-treats (List Atom)))
+    (-> (= (List Atom)
+          some-treats
+          more-treats)
+      (= Nat
+        (length Atom some-treats)
+        (length Atom more-treats)))))
+(define length-treats=
+  (lambda (some-treats more-treats)
+    (lambda (treats=)
+      (cong treats= (length Atom)))))
+
+
+;; Coming back to the list->vec->list=
+
+
+(claim ::-fun
+  (Pi ((E U))
+    (-> E (List E)
+      (List E))))
+(define ::-fun
+  (lambda (E)
+    (lambda (e es)
+      (:: e es))))
+
+
+(define step-list->vec->list=
+  (lambda (E e es)
+    (lambda (list->vec->list=_es)
+      (cong list->vec->list=_es
+        (::-fun E e)))))
+
+
+(define list->vec->list=
+  (lambda (E es)
+    (ind-List es
+      (mot-list->vec->list= E)
+      (same nil)
+      (step-list->vec->list= E))))
