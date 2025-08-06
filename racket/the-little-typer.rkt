@@ -1599,3 +1599,106 @@
       (mot-list->vec->list= E)
       (same nil)
       (step-list->vec->list= E))))
+
+
+;; Chap 12
+;; =======
+
+(claim Even
+  (-> Nat
+    U))
+(define Even
+  (lambda (n)
+    (Sigma ((half Nat))
+      (= Nat n (double half)))))
+
+
+(claim zero-is-even
+  (Even 0))
+(define zero-is-even
+  (cons 0
+    (same 0)))
+
+
+(claim +two-even
+  (Pi ((n Nat))
+    (-> (Even n)
+      (Even (+ 2 n)))))
+
+
+;; Carefully Choose Definitions
+;; ============================
+;; Carefully chosen definitions can greatly simpilfy
+;; later proofs.
+
+
+(define +two-even
+  (lambda (n e_n)
+    (cons (add1 (car e_n))
+      (cong (cdr e_n) (+ 2)))))
+
+
+(claim two-is-even
+  (Even 2))
+(define two-is-even
+  (+two-even 0 zero-is-even))
+
+
+(claim Odd
+  (-> Nat
+    U))
+(define Odd
+  (lambda (n)
+    (Sigma ((haf Nat))
+      (= Nat n (add1 (double haf))))))
+
+
+(claim one-is-odd
+  (Odd 1))
+(define one-is-odd
+  (cons 0
+    (same 1)))
+
+
+(claim add1-even->odd
+  (Pi ((n Nat))
+    (-> (Even n)
+      (Odd (add1 n)))))
+(define add1-even->odd
+  (lambda (n e_n)
+    (cons (car e_n)
+      (cong (cdr e_n) (+ 1)))))
+
+
+(claim add1-odd->even
+  (Pi ((n Nat))
+    (-> (Odd n)
+      (Even (add1 n)))))
+(define add1-odd->even
+  (lambda (n o_n)
+    (cons (add1 (car o_n))
+      (cong (cdr o_n) (+ 1)))))
+
+
+(claim repeat
+  (-> (-> Nat
+        Nat)
+      Nat
+    Nat))
+(define repeat
+  (lambda (f n)
+    (iter-Nat n
+      (f 1)
+      (lambda (iter_fn-1)
+        (f iter_fn-1)))))
+
+
+(claim ackermann
+  (-> Nat Nat
+    Nat))
+(define ackermann
+  (lambda (n)
+    (iter-Nat n
+      (+ 1)
+      (lambda (ackermann_n-1)
+        (repeat ackermann_n-1)))))
