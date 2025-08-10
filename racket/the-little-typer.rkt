@@ -9,7 +9,7 @@
 ;; =====================
 ;; In dependent types, proofs are constructed instead of rewrited to be
 ;; to prove it. In the little prover, proof were kind of automated using
-;; rewriting rules. In the little typer, we construct proofs using
+;; rewriting rules. In the little typer, we construct proofs using 
 ;; dependent type theory.
 
 ;; Chap 01
@@ -46,9 +46,9 @@
 ;; they are the same type.
 
 (claim one
-Nat)
+  Nat)
 (define one
-(add1 zero))
+  (add1 zero))
 
 
 ;; Claims before Definitions
@@ -298,36 +298,36 @@ Nat)
 ;; is the same X as (step (iter-Nat n base step)).
 
 (claim step-+
-(-> Nat Nat))
+  (-> Nat Nat))
 (define step-+
-(lambda (n-1)
-(add1 n-1)))
+  (lambda (n-1)
+    (add1 n-1)))
 
 ;; The mysterious + is now defined. This is cool as hell.
 (claim +
-(-> Nat Nat Nat))
+  (-> Nat Nat Nat))
 (define +
-(lambda (n j)
-(iter-Nat n
-j
-step-+)))
+  (lambda (n j)
+    (iter-Nat n
+      j
+      step-+)))
 
 
 ;; Define gauss using rec-Nat
 
 (claim step-gauss
-(-> Nat Nat Nat))
+  (-> Nat Nat Nat))
 (define step-gauss
-(lambda (n-1 gauss_n-1)
-(+ (add1 n-1) gauss_n-1)))
+  (lambda (n-1 gauss_n-1)
+    (+ (add1 n-1) gauss_n-1)))
 
 (claim gauss
-(-> Nat Nat))
+  (-> Nat Nat))
 (define gauss
-(lambda (n)
-(rec-Nat n
-0
-step-gauss)))
+  (lambda (n)
+    (rec-Nat n
+      0
+      step-gauss)))
 
 ;; NOTE: rec-Nat is also called primitive recursion.
 
@@ -362,18 +362,18 @@ step-gauss)))
 ;; =========================================================================
 
 (claim step-*
-(-> Nat Nat Nat Nat))
+  (-> Nat Nat Nat Nat))
 (define step-*
-(lambda (j n-1 *n-1)
-(+ j *n-1)))
+  (lambda (j n-1 *n-1)
+    (+ j *n-1)))
 
 (claim *
-(-> Nat Nat Nat))
+  (-> Nat Nat Nat))
 (define *
-(lambda (n j)
-(rec-Nat n
-0
-(step-* j))))
+  (lambda (n j)
+    (rec-Nat n
+    0
+    (step-* j))))
 
 
 ;; The Law of rec-Nat
@@ -407,80 +407,80 @@ step-gauss)))
 
 ;; flip function
 (claim flip
-(Pi ((A U)
-(D U))
-(-> (Pair A D)
-(Pair D A))))
+  (Pi ((A U)
+      (D U))
+    (-> (Pair A D)
+      (Pair D A))))
 (define flip
-(lambda (A D)
-(lambda (p)
-(cons (cdr p) (car p)))))
+  (lambda (A D)
+    (lambda (p)
+      (cons (cdr p) (car p)))))
 
 
 ;; elim-Pair
 (claim elim-Pair
-(Pi ((A U)
-(D U)
-(X U))
-(-> (Pair A D)
-(-> A D
-X)
-X)))
+  (Pi ((A U)
+       (D U)
+       (X U))
+    (-> (Pair A D)
+        (-> A D
+            X)
+       X)))
 (define elim-Pair
-(lambda (A D X)
-(lambda (p f)
-(f (car p) (cdr p)))))
+  (lambda (A D X)
+    (lambda (p f)
+      (f (car p) (cdr p)))))
 
 
 ;; kar function
 (claim kar
-(-> (Pair Nat Nat)
-Nat))
+  (-> (Pair Nat Nat)
+    Nat))
 (define kar
-(lambda (p)
-(elim-Pair
-Nat Nat
-Nat
-p
-(lambda (a d)
-a))))
+  (lambda (p)
+    (elim-Pair
+      Nat Nat
+      Nat
+      p
+      (lambda (a d)
+        a))))
 
 ;; kdr function
 (claim kdr
-(-> (Pair Nat Nat)
-Nat))
+  (-> (Pair Nat Nat)
+    Nat))
 (define kdr
-(lambda (p)
-(elim-Pair
-Nat Nat
-Nat
-p
-(lambda (a d)
-d))))
+  (lambda (p)
+    (elim-Pair
+      Nat Nat
+      Nat
+      p
+      (lambda (a d)
+        d))))
 
 ;; swap function
 (claim swap
-(-> (Pair Nat Atom)
-(Pair Atom Nat)))
+  (-> (Pair Nat Atom)
+    (Pair Atom Nat)))
 (define swap
-(lambda (p)
-(elim-Pair
-Nat Atom
-(Pair Atom Nat)
-p
-(lambda (a d)
-(cons d a)))))
+  (lambda (p)
+    (elim-Pair
+      Nat Atom
+      (Pair Atom Nat)
+      p
+      (lambda (a d)
+        (cons d a)))))
 
 
 ;; general-purpose twin function for any type
 ;; This encapsulated the power of dependent types
 (claim twin
-(Pi ((Y U))
-(-> Y (Pair Y Y))))
+  (Pi ((Y U))
+    (-> Y (Pair Y Y))))
 (define twin
-(lambda (Y)
-(lambda (x)
-(cons x x))))
+  (lambda (Y)
+    (lambda (x)
+      (cons x x))))
 
 
 ;; Chap 05
@@ -530,31 +530,31 @@ p
 
 
 (claim condiments
-(List Atom))
+  (List Atom))
 (define condiments
-(:: 'chives
-(:: 'mayonnaise nil)))
+  (:: 'chives
+    (:: 'mayonnaise nil)))
 
 
 (claim step-length
-(Pi ((E U))
-(-> E (List E) Nat
-Nat)))
+  (Pi ((E U))
+    (-> E (List E) Nat
+      Nat)))
 (define step-length
-(lambda (E)
-(lambda (e es length_es)
-(add1 length_es))))
+  (lambda (E)
+    (lambda (e es length_es)
+      (add1 length_es))))
 
 
 (claim length
-(Pi ((E U))
-(-> (List E) Nat)))
+  (Pi ((E U))
+    (-> (List E) Nat)))
 (define length
-(lambda (E)
-(lambda (es)
-(rec-List es
-0
-(step-length E)))))
+  (lambda (E)
+    (lambda (es)
+      (rec-List es
+        0
+        (step-length E)))))
 
 
 ;; List Entry Types
@@ -564,25 +564,25 @@ Nat)))
 
 
 (claim step-append
-(Pi ((E U))
-(-> E (List E) (List E)
-(List E))))
+  (Pi ((E U))
+    (-> E (List E) (List E)
+      (List E))))
 (define step-append
-(lambda (E)
-(lambda (e es append_es)
-(:: e append_es))))
+  (lambda (E)
+    (lambda (e es append_es)
+      (:: e append_es))))
 
 
 (claim append
-(Pi ((E U))
-(-> (List E) (List E)
-(List E))))
+  (Pi ((E U))
+    (-> (List E) (List E)
+      (List E))))
 (define append
-(lambda (E)
-(lambda (start end)
-(rec-List start
-end
-(step-append E)))))
+  (lambda (E)
+    (lambda (start end)
+      (rec-List start
+        end
+        (step-append E)))))
 
 
 ;; Chap 06
@@ -606,21 +606,21 @@ end
 
 
 (claim first-of-one
-(Pi ((E U))
-(-> (Vec E 1)
-E)))
+  (Pi ((E U))
+    (-> (Vec E 1)
+      E)))
 (define first-of-one
-(lambda (E)
-(lambda (es)
-(head es))))
+  (lambda (E)
+    (lambda (es)
+      (head es))))
 
 ;; That's no good, we need a general first function. Here it is:
 
 (claim first
-(Pi ((E U)
-(l Nat))
-(-> (Vec E (add1 l))
-E)))
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E (add1 l))
+      E)))
 
 
 ;; The Law of Pi
@@ -629,9 +629,9 @@ E)))
 ;; a type, and X is a type if y is a Y.
 
 (define first
-(lambda (E l)
-(lambda (es)
-(head es))))
+  (lambda (E l)
+    (lambda (es)
+      (head es))))
 
 
 ;; Use a More Specific Type
@@ -699,14 +699,14 @@ E)))
 
 
 (claim rest
-(Pi ((E U)
-(l Nat))
-(-> (Vec E (add1 l))
-(Vec E l))))
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E (add1 l))
+      (Vec E l))))
 (define rest
-(lambda (E l)
-(lambda (es)
-(tail es))))
+  (lambda (E l)
+    (lambda (es)
+      (tail es))))
 
 
 ;; Chap 07
@@ -769,47 +769,47 @@ E)))
 
 
 (claim mot-peas
-(-> Nat
-U))
+  (-> Nat
+    U))
 (define mot-peas
-(lambda (k)
-(Vec Atom k)))
+  (lambda (k)
+    (Vec Atom k)))
 
 (claim step-peas
-(Pi ((l-1 Nat))
-(-> (mot-peas l-1)
-(mot-peas (add1 l-1)))))
+  (Pi ((l-1 Nat))
+    (-> (mot-peas l-1)
+      (mot-peas (add1 l-1)))))
 (define step-peas
-(lambda (l-1)
-(lambda (peas_l-1)
-(vec:: 'pea peas_l-1))))
+  (lambda (l-1)
+    (lambda (peas_l-1)
+      (vec:: 'pea peas_l-1))))
 
 (claim peas
-(Pi ((how-many-peas Nat))
-(Vec Atom how-many-peas)))
+  (Pi ((how-many-peas Nat))
+    (Vec Atom how-many-peas)))
 (define peas
-(lambda (how-many-peas)
-(ind-Nat how-many-peas
-mot-peas
-vecnil
-step-peas)))
+  (lambda (how-many-peas)
+    (ind-Nat how-many-peas
+      mot-peas
+      vecnil
+      step-peas)))
 
 
 (claim last
-(Pi ((E U)
-(l Nat))
-(-> (Vec E (add1 l))
-E)))
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E (add1 l))
+       E)))
 
 
 (claim base-last
-(Pi ((E U))
-(-> (Vec E (add1 zero))
-E)))
+  (Pi ((E U))
+    (-> (Vec E (add1 zero))
+      E)))
 (define base-last
-(lambda (E)
-(lambda (es)
-(head es))))
+  (lambda (E)
+    (lambda (es)
+      (head es))))
 
 
 ;; ind-Nat’s Base Type
@@ -819,12 +819,12 @@ E)))
 
 
 (claim mot-last
-(-> U Nat
-U))
+  (-> U Nat
+    U))
 (define mot-last
-(lambda (E k)
-(-> (Vec E (add1 k))
-E)))
+  (lambda (E k)
+    (-> (Vec E (add1 k))
+      E)))
 
 
 ;; ind-Nat’s Step Type
@@ -839,22 +839,22 @@ E)))
 
 
 (claim step-last
-(Pi ((E U)
-(l-1 Nat))
-(-> (mot-last E l-1)
-(mot-last E (add1 l-1)))))
+  (Pi ((E U)
+       (l-1 Nat))
+    (-> (mot-last E l-1)
+      (mot-last E (add1 l-1)))))
 (define step-last
-(lambda (E l-1)
-(lambda (last_l-1)
-(lambda (es)
-(last_l-1 (tail es))))))
+  (lambda (E l-1)
+    (lambda (last_l-1)
+      (lambda (es)
+        (last_l-1 (tail es))))))
 
 (define last
-(lambda (E l)
-(ind-Nat l
-(mot-last E)
-(base-last E)
-(step-last E))))
+  (lambda (E l)
+    (ind-Nat l
+      (mot-last E)
+      (base-last E)
+      (step-last E))))
 
 
 ;; Readable Expressions
@@ -874,13 +874,13 @@ E)))
 
 
 (claim incr
-(-> Nat
-Nat))
+  (-> Nat
+    Nat))
 (define incr
-(lambda (n)
-(iter-Nat n
-1
-(+ 1))))
+  (lambda (n)
+    (iter-Nat n
+      1
+      (+ 1))))
 
 
 ;; The Law of =
@@ -907,16 +907,16 @@ Nat))
 
 
 (claim +1=add1
-(Pi ((n Nat))
-(= Nat (+ 1 n) (add1 n))))
+  (Pi ((n Nat))
+    (= Nat (+ 1 n) (add1 n))))
 (define +1=add1
-(lambda (n)
-(same (add1 n))))
+  (lambda (n)
+    (same (add1 n))))
 
 
 (claim incr=add1
-(Pi ((n Nat))
-(= Nat (incr n) (add1 n))))
+  (Pi ((n Nat))
+    (= Nat (incr n) (add1 n))))
 
 
 ;; Neutral Expressions
@@ -930,17 +930,17 @@ Nat))
 ;;   These are sometimes called eta-long normal forms.
 
 (claim base-incr=add1
-(= Nat (incr zero) (add1 zero)))
+  (= Nat (incr zero) (add1 zero)))
 (define base-incr=add1
-(same (add1 zero)))
+  (same (add1 zero)))
 
 
 (claim mot-incr=add1
-(-> Nat
-U))
+  (-> Nat
+    U))
 (define mot-incr=add1
-(lambda (k)
-(= Nat (incr k) (add1 k))))
+  (lambda (k)
+    (= Nat (incr k) (add1 k))))
 
 
 ;; "If" and "Then" as Types
@@ -950,15 +950,15 @@ U))
 
 
 (claim step-incr=add1
-(Pi ((n-1 Nat))
-(-> (= Nat
-(incr n-1)
-(add1 n-1))
-(= Nat
-(add1
-(incr n-1))
-(add1
-(add1 n-1))))))
+  (Pi ((n-1 Nat))
+    (-> (= Nat
+          (incr n-1)
+          (add1 n-1))
+      (= Nat
+        (add1
+          (incr n-1))
+        (add1
+          (add1 n-1))))))
 
 
 ;; Observation about incr
@@ -974,17 +974,17 @@ U))
 ;; NOTE: cong is short for congruence.
 
 (define step-incr=add1
-(lambda (n-1)
-(lambda (incr=add1_n-1)
-(cong incr=add1_n-1 (+ 1)))))
+  (lambda (n-1)
+    (lambda (incr=add1_n-1)
+      (cong incr=add1_n-1 (+ 1)))))
 
 
 (define incr=add1
-(lambda (n)
-(ind-Nat n
-mot-incr=add1
-base-incr=add1
-step-incr=add1)))
+  (lambda (n)
+    (ind-Nat n
+      mot-incr=add1
+      base-incr=add1
+      step-incr=add1)))
 
 
 ;; The Commandment of cong
@@ -1011,29 +1011,29 @@ step-incr=add1)))
 
 
 (claim double
-(-> Nat
-Nat))
+  (-> Nat
+    Nat))
 (define double
-(lambda (n)
-(iter-Nat n
-0
-(+ 2))))
+  (lambda (n)
+    (iter-Nat n
+      0
+      (+ 2))))
 
 
 (claim twice
-(-> Nat
-Nat))
+  (-> Nat
+    Nat))
 (define twice
-(lambda (n)
-(+ n n)))
+  (lambda (n)
+    (+ n n)))
 
 ;; You can write statements such as:
 ;;    "For every Nat n, (twice n) equals (double n)."
 ;; as a type. i.e:
 
 (claim twice=double
-(Pi ((n Nat))
-(= Nat (twice n) (double n))))
+  (Pi ((n Nat))
+    (= Nat (twice n) (double n))))
 
 ;; This type represents a proposition, which needs a proof, the program we
 ;; write for this would be its proof. Who knew types can be this expressive!
@@ -1043,58 +1043,58 @@ Nat))
 
 
 (claim add1+=+add1
-(Pi ((n Nat)
-(j Nat))
-(= Nat
-(add1 (+ n j))
-(+ n (add1 j)))))
+  (Pi ((n Nat)
+       (j Nat))
+    (= Nat
+      (add1 (+ n j))
+      (+ n (add1 j)))))
 
 
 (claim mot-add1+=+add1
-(-> Nat Nat
-U))
+  (-> Nat Nat
+    U))
 (define mot-add1+=+add1
-(lambda (j k)
-(= Nat
-(add1 (+ k j))
-(+ k (add1 j)))))
+  (lambda (j k)
+    (= Nat
+      (add1 (+ k j))
+      (+ k (add1 j)))))
 
 
 (claim step-add1+=+add1
-(Pi ((j Nat)
-(n-1 Nat))
-(-> (mot-add1+=+add1 j n-1)
-(mot-add1+=+add1 j (add1 n-1)))))
+  (Pi ((j Nat)
+       (n-1 Nat))
+    (-> (mot-add1+=+add1 j n-1)
+      (mot-add1+=+add1 j (add1 n-1)))))
 (define step-add1+=+add1
-(lambda (j n-1)
-(lambda (add1+=+add1_n-1)
-(cong add1+=+add1_n-1 (+ 1)))))
+  (lambda (j n-1)
+    (lambda (add1+=+add1_n-1)
+      (cong add1+=+add1_n-1 (+ 1)))))
 
 
 (define add1+=+add1
-(lambda (n j)
-(ind-Nat n
-(mot-add1+=+add1 j)
-(same (add1 j))
-(step-add1+=+add1 j))))
+  (lambda (n j)
+    (ind-Nat n
+      (mot-add1+=+add1 j)
+      (same (add1 j))
+      (step-add1+=+add1 j))))
 
 
 ;; Now we move towards proving twice = double
 
 (claim mot-twice=double
-(-> Nat
-U))
+  (-> Nat
+    U))
 (define mot-twice=double
-(lambda (n)
-(= Nat
-(twice n)
-(double n))))
+  (lambda (n)
+    (= Nat
+      (twice n)
+      (double n))))
 
 
 (claim step-twice=double
-(Pi ((n-1 Nat))
-(-> (mot-twice=double n-1)
-(mot-twice=double (add1 n-1)))))
+  (Pi ((n-1 Nat))
+    (-> (mot-twice=double n-1)
+      (mot-twice=double (add1 n-1)))))
 
 ;; Observation about +
 ;; ===================
@@ -1103,100 +1103,100 @@ U))
 
 
 (claim mot-step-twice=double
-(-> Nat Nat
-U))
+  (-> Nat Nat
+    U))
 (define mot-step-twice=double
-(lambda (n-1 k)
-(= Nat
-(add1 k)
-(add1 (add1 (double n-1))))))
+  (lambda (n-1 k)
+    (= Nat
+      (add1 k)
+      (add1 (add1 (double n-1))))))
 
 
 (define step-twice=double
-(lambda (n-1)
-(lambda (twice=double_n-1)
-(replace (add1+=+add1 n-1 n-1)
-(mot-step-twice=double n-1)
-(cong twice=double_n-1
-(+ 2))))))
+  (lambda (n-1)
+    (lambda (twice=double_n-1)
+      (replace (add1+=+add1 n-1 n-1)
+        (mot-step-twice=double n-1)
+        (cong twice=double_n-1
+          (+ 2))))))
 
 
 (define twice=double
-(lambda (n)
-(ind-Nat n
-mot-twice=double
-(same zero)
-step-twice=double)))
+  (lambda (n)
+    (ind-Nat n
+      mot-twice=double
+      (same zero)
+      step-twice=double)))
 
 
 (claim twice=double-of-17
-(= Nat (twice 17) (double 17)))
+  (= Nat (twice 17) (double 17)))
 
 (claim twice=double-of-17-again
-(= Nat (twice 17) (double 17)))
+  (= Nat (twice 17) (double 17)))
 
 (define twice=double-of-17
-(twice=double 17))
+  (twice=double 17))
 
 ;; We can do it with congruence as well:
 (define twice=double-of-17-again
-(same 34))
+  (same 34))
 
 
 (claim twice-Vec
-(Pi ((E U)
-(l Nat))
-(-> (Vec E l)
-(Vec E (twice l)))))
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E l)
+      (Vec E (twice l)))))
 
 
 (claim double-Vec
-(Pi ((E U)
-(l Nat))
-(-> (Vec E l)
-(Vec E (double l)))))
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E l)
+      (Vec E (double l)))))
 
 (claim base-double-Vec
-(Pi ((E U))
-(-> (Vec E zero)
-(Vec E (double zero)))))
+  (Pi ((E U))
+    (-> (Vec E zero)
+      (Vec E (double zero)))))
 (define base-double-Vec
-(lambda (E)
-(lambda (es)
-vecnil)))
+  (lambda (E)
+    (lambda (es)
+      vecnil)))
 
 
 (claim mot-double-Vec
-(-> U Nat
-U))
+  (-> U Nat
+    U))
 (define mot-double-Vec
-(lambda (E k)
-(-> (Vec E k)
-(Vec E (double k)))))
+  (lambda (E k)
+    (-> (Vec E k)
+      (Vec E (double k)))))
 
 
 (claim step-double-Vec
-(Pi ((E U)
-(l-1 Nat))
-(-> (-> (Vec E l-1)
-(Vec E (double l-1)))
-(-> (Vec E (add1 l-1))
-(Vec E (double (add1 l-1)))))))
+  (Pi ((E U)
+       (l-1 Nat))
+    (-> (-> (Vec E l-1)
+          (Vec E (double l-1)))
+      (-> (Vec E (add1 l-1))
+        (Vec E (double (add1 l-1)))))))
 (define step-double-Vec
-(lambda (E l-1)
-(lambda (double-Vec_l-1)
-(lambda (es)
-(vec:: (head es)
-(vec:: (head es)
-(double-Vec_l-1
-(tail es))))))))
+  (lambda (E l-1)
+    (lambda (double-Vec_l-1)
+      (lambda (es)
+        (vec:: (head es)
+          (vec:: (head es)
+            (double-Vec_l-1
+              (tail es))))))))
 
 (define double-Vec
-(lambda (E l)
-(ind-Nat l
-(mot-double-Vec E)
-(base-double-Vec E)
-(step-double-Vec E))))
+  (lambda (E l)
+    (ind-Nat l
+      (mot-double-Vec E)
+      (base-double-Vec E)
+      (step-double-Vec E))))
 
 
 ;; Solve Easy Problems First
@@ -1207,13 +1207,13 @@ U))
 
 
 (define twice-Vec
-(lambda (E l)
-(lambda (es)
-(replace
-(symm (twice=double l))
-(lambda (k)
-(Vec E k))
-(double-Vec E l es)))))
+  (lambda (E l)
+    (lambda (es)
+      (replace
+        (symm (twice=double l))
+        (lambda (k)
+          (Vec E k))
+        (double-Vec E l es)))))
 
 
 ;; The Law of symm
@@ -1256,45 +1256,45 @@ U))
 
 
 (claim replicate
-(Pi ((E U)
-(l Nat))
-(-> E
-(Vec E l))))
+  (Pi ((E U)
+       (l Nat))
+    (-> E
+      (Vec E l))))
 
 
 (claim mot-replicate
-(-> U Nat
-U))
+  (-> U Nat
+    U))
 (define mot-replicate
-(lambda (E k)
-(Vec E k)))
+  (lambda (E k)
+    (Vec E k)))
 
 
 (claim step-replicate
-(Pi ((E U)
-(e E)
-(l-1 Nat))
-(-> (mot-replicate E l-1)
-(mot-replicate E (add1 l-1)))))
+  (Pi ((E U)
+       (e E)
+       (l-1 Nat))
+    (-> (mot-replicate E l-1)
+      (mot-replicate E (add1 l-1)))))
 (define step-replicate
-(lambda (E e l-1)
-(lambda (step-replicate_l-1)
-(vec:: e step-replicate_l-1))))
+  (lambda (E e l-1)
+    (lambda (step-replicate_l-1)
+      (vec:: e step-replicate_l-1))))
 
 
 (define replicate
-(lambda (E l)
-(lambda (e)
-(ind-Nat l
-(mot-replicate E)
-vecnil
-(step-replicate E e)))))
+  (lambda (E l)
+    (lambda (e)
+      (ind-Nat l
+        (mot-replicate E)
+        vecnil
+        (step-replicate E e)))))
 
 
 (claim list->vec
-(Pi ((E U)
-(es (List E)))
-(Vec E (length E es))))
+  (Pi ((E U)
+       (es (List E)))
+    (Vec E (length E es))))
 
 
 ;; The Law of ind-List
@@ -1330,44 +1330,44 @@ vecnil
 
 
 (claim mot-list->vec
-(Pi ((E U))
-(-> (List E)
-U)))
+  (Pi ((E U))
+    (-> (List E)
+      U)))
 (define mot-list->vec
-(lambda (E)
-(lambda (es)
-(Vec E (length E es)))))
+  (lambda (E)
+    (lambda (es)
+      (Vec E (length E es)))))
 
 
 (claim step-list->vec
-(Pi ((E U)
-(e E)
-(es (List E)))
-(-> (mot-list->vec E es)
-(mot-list->vec E (:: e es)))))
+  (Pi ((E U)
+       (e E)
+       (es (List E)))
+    (-> (mot-list->vec E es)
+      (mot-list->vec E (:: e es)))))
 (define step-list->vec
-(lambda (E e es)
-(lambda (list->vec_es)
-(vec:: e list->vec_es))))
+  (lambda (E e es)
+    (lambda (list->vec_es)
+      (vec:: e list->vec_es))))
 
 
 (define list->vec
-(lambda (E es)
-(ind-List es
-(mot-list->vec E)
-vecnil
-(step-list->vec E))))
+  (lambda (E es)
+    (ind-List es
+      (mot-list->vec E)
+      vecnil
+      (step-list->vec E))))
 
 
 ;; Chap 11
 ;; =======
 
 (claim vec-append
-(Pi ((E U)
-(l Nat)
-(j Nat))
-(-> (Vec E l) (Vec E j)
-(Vec E (+ l j)))))
+  (Pi ((E U)
+       (l Nat)
+       (j Nat))
+    (-> (Vec E l) (Vec E j)
+      (Vec E (+ l j)))))
 
 
 ;; The Law of ind-Vec
@@ -1416,40 +1416,40 @@ vecnil
 
 
 (claim mot-vec-append
-(Pi ((E U)
-(j Nat)
-(k Nat))
-(-> (Vec E k)
-U)))
+  (Pi ((E U)
+       (j Nat)
+       (k Nat))
+    (-> (Vec E k)
+      U)))
 (define mot-vec-append
-(lambda (E j k)
-(lambda (es)
-(Vec E (+ k j)))))
+  (lambda (E j k)
+    (lambda (es)
+      (Vec E (+ k j)))))
 
 
 (claim step-vec-append
-(Pi ((E U)
-(j Nat)
-(k Nat)
-(e E)
-(es (Vec E k)))
-(-> (mot-vec-append E j
-k es)
-(mot-vec-append E j
-(add1 k) (vec:: e es)))))
+  (Pi ((E U)
+       (j Nat)
+       (k Nat)
+       (e E)
+       (es (Vec E k)))
+    (-> (mot-vec-append E j
+          k es)
+      (mot-vec-append E j
+        (add1 k) (vec:: e es)))))
 (define step-vec-append
-(lambda (E j l-1 e es)
-(lambda (vec-append_es)
-(vec:: e vec-append_es))))
+  (lambda (E j l-1 e es)
+    (lambda (vec-append_es)
+      (vec:: e vec-append_es))))
 
 
 (define vec-append
-(lambda (E l j)
-(lambda (es end)
-(ind-Vec l es
-(mot-vec-append E j)
-end
-(step-vec-append E j)))))
+  (lambda (E l j)
+    (lambda (es end)
+      (ind-Vec l es
+        (mot-vec-append E j)
+        end
+        (step-vec-append E j)))))
 
 
 ;; NOTE: Sometimes, using a more specific type is called
@@ -1458,172 +1458,172 @@ end
 
 
 (claim mot-vec->list
-(Pi ((E U)
-(l Nat))
-(-> (Vec E l)
-U)))
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E l)
+      U)))
 (define mot-vec->list
-(lambda (E l)
-(lambda (es)
-(List E))))
+  (lambda (E l)
+    (lambda (es)
+      (List E))))
 
 (claim step-vec->list
-(Pi ((E U)
-(l-1 Nat)
-(e E)
-(es (Vec E l-1)))
-(-> (mot-vec->list E
-l-1 es)
-(mot-vec->list E
-(add1 l-1) (vec:: e es)))))
+  (Pi ((E U)
+       (l-1 Nat)
+       (e E)
+       (es (Vec E l-1)))
+    (-> (mot-vec->list E
+          l-1 es)
+      (mot-vec->list E
+        (add1 l-1) (vec:: e es)))))
 (define step-vec->list
-(lambda (E l-1 e es)
-(lambda (vec->list_es)
-(:: e vec->list_es))))
+  (lambda (E l-1 e es)
+    (lambda (vec->list_es)
+      (:: e vec->list_es))))
 
 
 (claim vec->list
-(Pi ((E U)
-(l Nat))
-(-> (Vec E l)
-(List E))))
+  (Pi ((E U)
+       (l Nat))
+    (-> (Vec E l)
+      (List E))))
 (define vec->list
-(lambda (E l)
-(lambda (es)
-(ind-Vec l es
-(mot-vec->list E)
-nil
-(step-vec->list E)))))
+  (lambda (E l)
+    (lambda (es)
+      (ind-Vec l es
+        (mot-vec->list E)
+        nil
+        (step-vec->list E)))))
 
 
 (claim list->vec->list=
-(Pi ((E U)
-(es (List E)))
-(= (List E)
-es
-(vec->list E
-(length E es)
-(list->vec E es)))))
+  (Pi ((E U)
+       (es (List E)))
+    (= (List E)
+      es
+      (vec->list E
+        (length E es)
+        (list->vec E es)))))
 
 (claim mot-list->vec->list=
-(Pi ((E U))
-(-> (List E)
-U)))
+  (Pi ((E U))
+    (-> (List E)
+      U)))
 (define mot-list->vec->list=
-(lambda (E es)
-(= (List E)
-es
-(vec->list E
-(length E es)
-(list->vec E es)))))
+  (lambda (E es)
+    (= (List E)
+      es
+      (vec->list E
+        (length E es)
+        (list->vec E es)))))
 
 
 (claim step-list->vec->list=
-(Pi ((E U)
-(e E)
-(es (List E)))
-(-> (mot-list->vec->list= E
-es)
-(mot-list->vec->list= E
-(:: e es)))))
+  (Pi ((E U)
+       (e E)
+       (es (List E)))
+    (-> (mot-list->vec->list= E
+          es)
+      (mot-list->vec->list= E
+          (:: e es)))))
 
 ;; Statement for "Two equal lists of treats"
 
 (claim Treat-Statement
-U)
+  U)
 (define Treat-Statement
-(Pi ((some-treats (List Atom))
-(more-treats (List Atom)))
-(-> (= (List Atom)
-some-treats
-more-treats)
-(= (List Atom)
-(:: 'plattar some-treats)
-(:: 'plattar more-treats)))))
+  (Pi ((some-treats (List Atom))
+       (more-treats (List Atom)))
+    (-> (= (List Atom)
+          some-treats
+          more-treats)
+      (= (List Atom)
+        (:: 'plattar some-treats)
+        (:: 'plattar more-treats)))))
 
 
 (claim ::-plattar
-(-> (List Atom)
-(List Atom)))
+  (-> (List Atom)
+    (List Atom)))
 (define ::-plattar
-(lambda (tasty-treats)
-(:: 'plattar tasty-treats)))
+  (lambda (tasty-treats)
+    (:: 'plattar tasty-treats)))
 
 
 (claim treat-proof
-Treat-Statement)
+  Treat-Statement)
 (define treat-proof
-(lambda (some-treats more-treats)
-(lambda (treats=)
-(cong treats= ::-plattar))))
+  (lambda (some-treats more-treats)
+    (lambda (treats=)
+      (cong treats= ::-plattar))))
 
 
 (claim length-treats=
-(Pi ((some-treats (List Atom))
-(more-treats (List Atom)))
-(-> (= (List Atom)
-some-treats
-more-treats)
-(= Nat
-(length Atom some-treats)
-(length Atom more-treats)))))
+  (Pi ((some-treats (List Atom))
+       (more-treats (List Atom)))
+    (-> (= (List Atom)
+          some-treats
+          more-treats)
+      (= Nat
+        (length Atom some-treats)
+        (length Atom more-treats)))))
 (define length-treats=
-(lambda (some-treats more-treats)
-(lambda (treats=)
-(cong treats= (length Atom)))))
+  (lambda (some-treats more-treats)
+    (lambda (treats=)
+      (cong treats= (length Atom)))))
 
 
 ;; Coming back to the list->vec->list=
 
 
 (claim ::-fun
-(Pi ((E U))
-(-> E (List E)
-(List E))))
+  (Pi ((E U))
+    (-> E (List E)
+      (List E))))
 (define ::-fun
-(lambda (E)
-(lambda (e es)
-(:: e es))))
+  (lambda (E)
+    (lambda (e es)
+      (:: e es))))
 
 
 (define step-list->vec->list=
-(lambda (E e es)
-(lambda (list->vec->list=_es)
-(cong list->vec->list=_es
-(::-fun E e)))))
+  (lambda (E e es)
+    (lambda (list->vec->list=_es)
+      (cong list->vec->list=_es
+        (::-fun E e)))))
 
 
 (define list->vec->list=
-(lambda (E es)
-(ind-List es
-(mot-list->vec->list= E)
-(same nil)
-(step-list->vec->list= E))))
+  (lambda (E es)
+    (ind-List es
+      (mot-list->vec->list= E)
+      (same nil)
+      (step-list->vec->list= E))))
 
 
 ;; Chap 12
 ;; =======
 
 (claim Even
-(-> Nat
-U))
+  (-> Nat
+    U))
 (define Even
-(lambda (n)
-(Sigma ((half Nat))
-(= Nat n (double half)))))
+  (lambda (n)
+    (Sigma ((half Nat))
+      (= Nat n (double half)))))
 
 
 (claim zero-is-even
-(Even 0))
+  (Even 0))
 (define zero-is-even
-(cons 0
-(same 0)))
+  (cons 0
+    (same 0)))
 
 
 (claim +two-even
-(Pi ((n Nat))
-(-> (Even n)
-(Even (+ 2 n)))))
+  (Pi ((n Nat))
+    (-> (Even n)
+      (Even (+ 2 n)))))
 
 
 ;; Carefully Choose Definitions
@@ -1633,76 +1633,75 @@ U))
 
 
 (define +two-even
-(lambda (n e_n)
-(cons (add1 (car e_n))
-(cong (cdr e_n) (+ 2)))))
+  (lambda (n e_n)
+    (cons (add1 (car e_n))
+      (cong (cdr e_n) (+ 2)))))
 
 
 (claim two-is-even
-(Even 2))
+  (Even 2))
 (define two-is-even
-(+two-even 0 zero-is-even))
+  (+two-even 0 zero-is-even))
 
 
 (claim Odd
-(-> Nat
-U))
+  (-> Nat
+    U))
 (define Odd
-(lambda (n)
-(Sigma ((haf Nat))
-(= Nat n (add1 (double haf))))))
+  (lambda (n)
+    (Sigma ((haf Nat))
+      (= Nat n (add1 (double haf))))))
 
 
 (claim one-is-odd
-(Odd 1))
+  (Odd 1))
 (define one-is-odd
-(cons 0
-(same 1)))
+  (cons 0
+    (same 1)))
 
 
 (claim add1-even->odd
-(Pi ((n Nat))
-(-> (Even n)
-(Odd (add1 n)))))
+  (Pi ((n Nat))
+    (-> (Even n)
+      (Odd (add1 n)))))
 (define add1-even->odd
-(lambda (n e_n)
-(cons (car e_n)
-(cong (cdr e_n) (+ 1)))))
+  (lambda (n e_n)
+    (cons (car e_n)
+      (cong (cdr e_n) (+ 1)))))
 
 
 (claim add1-odd->even
-(Pi ((n Nat))
-(-> (Odd n)
-(Even (add1 n)))))
+  (Pi ((n Nat))
+    (-> (Odd n)
+      (Even (add1 n)))))
 (define add1-odd->even
-(lambda (n o_n)
-(cons (add1 (car o_n))
-(cong (cdr o_n) (+ 1)))))
+  (lambda (n o_n)
+    (cons (add1 (car o_n))
+      (cong (cdr o_n) (+ 1)))))
 
 
 (claim repeat
-(-> (-> Nat
-Nat)
-Nat
-Nat))
+  (-> (-> Nat
+        Nat)
+      Nat
+    Nat))
 (define repeat
-(lambda (f n)
-(iter-Nat n
-(f 1)
-(lambda (iter_fn-1)
-(f iter_fn-1)))))
+  (lambda (f n)
+    (iter-Nat n
+      (f 1)
+      (lambda (iter_fn-1)
+        (f iter_fn-1)))))
 
 
 (claim ackermann
-(-> Nat Nat
-Nat))
+  (-> Nat Nat
+    Nat))
 (define ackermann
-(lambda (n)
-(iter-Nat n
-(+ 1)
-(lambda (ackermann_n-1)
-(repeat ackermann_n-1)))))
-
+  (lambda (n)
+    (iter-Nat n
+      (+ 1)
+      (lambda (ackermann_n-1)
+        (repeat ackermann_n-1)))))
 
 ;; Chap 13
 ;; =======
@@ -1761,42 +1760,252 @@ Nat))
 
 
 (claim even-or-odd
-(Pi ((n Nat))
-(Either (Even n) (Odd n))))
+  (Pi ((n Nat))
+    (Either (Even n) (Odd n))))
 
 
 (claim mot-even-or-odd
-(-> Nat
-U))
+  (-> Nat
+    U))
 (define mot-even-or-odd
-(lambda (k)
-(Either (Even k) (Odd k))))
+  (lambda (k)
+    (Either (Even k) (Odd k))))
 
 
 (claim step-even-or-odd
-(Pi ((n-1 Nat))
-(-> (mot-even-or-odd n-1)
-(mot-even-or-odd (add1 n-1)))))
+  (Pi ((n-1 Nat))
+    (-> (mot-even-or-odd n-1)
+      (mot-even-or-odd (add1 n-1)))))
 (define step-even-or-odd
-(lambda (n-1)
-(lambda (e-or-o_n-1)
-(ind-Either e-or-o_n-1
-(lambda (e-or-o_n-1)
-(mot-even-or-odd
-(add1 n-1)))
-(lambda (e_n-1)
-(right
-(add1-even->odd
-n-1 e_n-1)))
-(lambda (o_n-1)
-(left
-(add1-odd->even
-n-1 o_n-1)))))))
+  (lambda (n-1)
+    (lambda (e-or-o_n-1)
+      (ind-Either e-or-o_n-1
+        (lambda (e-or-o_n-1)
+          (mot-even-or-odd
+            (add1 n-1)))
+        (lambda (e_n-1)
+          (right
+            (add1-even->odd
+              n-1 e_n-1)))
+        (lambda (o_n-1)
+          (left
+            (add1-odd->even
+              n-1 o_n-1)))))))
 
 
 (define even-or-odd
-(lambda (n)
-(ind-Nat n
-mot-even-or-odd
-(left zero-is-even)
-step-even-or-odd)))
+  (lambda (n)
+    (ind-Nat n
+      mot-even-or-odd
+      (left zero-is-even)
+      step-even-or-odd)))
+
+
+;; Chap 14
+;; =======
+
+;; The Law of Trivial
+;; ==================
+;; Trivial is a type.
+
+
+;; The Law of sole
+;; ===============
+;; sole is a Trivial.
+
+
+;; The Commandment of sole
+;; =======================
+;; If e is a Trivial, then e is the same as sole.
+
+;; NOTE: They are basically Unit () type like in haskell.
+
+(claim Maybe
+  (-> U
+    U))
+(define Maybe
+  (lambda (X)
+    (Either X Trivial)))
+
+
+(claim nothing
+  (Pi ((E U))
+    (Maybe E)))
+(define nothing
+  (lambda (E)
+    (right sole)))
+
+
+(claim just
+  (Pi ((E U))
+    (-> E
+      (Maybe E))))
+(define just
+  (lambda (E e)
+    (left e)))
+
+
+(claim maybe-head
+  (Pi ((E U))
+    (-> (List E)
+      (Maybe E))))
+(define maybe-head
+  (lambda (E es)
+    (rec-List es
+      (nothing E)
+      (lambda (hd tl head_tl)
+        (just E hd)))))
+
+
+(claim maybe-tail
+  (Pi ((E U))
+    (-> (List E)
+      (Maybe (List E)))))
+(define maybe-tail
+  (lambda (E es)
+    (rec-List es
+      (nothing (List E))
+      (lambda (hd tl tail_tl)
+        (just (List E) tl)))))
+
+
+(claim list-ref
+  (Pi ((E U))
+    (-> Nat (List E)
+      (Maybe E))))
+
+
+(claim step-list-ref
+  (Pi ((E U))
+    (-> Nat
+        (-> (List E)
+          (Maybe E))
+      (-> (List E)
+        (Maybe E)))))
+(define step-list-ref
+  (lambda (E)
+    (lambda (n-1 list-ref_n-1)
+      (lambda (es)
+        (ind-Either (maybe-tail E es)
+          (lambda (maybe_tl)
+            (Maybe E))
+          (lambda (tl)
+            (list-ref_n-1 tl))
+          (lambda (empty)
+            (nothing E)))))))
+
+
+(define list-ref
+  (lambda (E n)
+    (rec-Nat n
+      (maybe-head E)
+      (step-list-ref E))))
+
+
+;; The Law of Absurd
+;; =================
+;; Absurd is a type.
+
+
+(claim similarly-absurd
+  (-> Absurd
+    Absurd))
+(define similarly-absurd
+  (lambda (x)
+    x))
+
+
+;; The Commandment of Absurdities
+;; ==============================
+;; Every expression of type Absurd is neutral, and all of them
+;; are the same.
+
+
+;; The Law of ind-Absurd
+;; =====================
+;; The expression
+;;   (ind-Absurd target
+;;     mot)
+;; is a mot if target is an Absurd and mot is a U.
+
+
+(claim Fin
+  (-> Nat
+    U))
+(define Fin
+  (lambda (n)
+    (iter-Nat n
+      Absurd
+      Maybe)))
+
+
+(claim fzero
+  (Pi ((n Nat))
+    (Fin (add1 n))))
+(define fzero
+  (lambda (n)
+    (nothing (Fin n))))
+
+
+(claim fadd1
+  (Pi ((n Nat))
+    (-> (Fin n)
+      (Fin (add1 n)))))
+(define fadd1
+  (lambda (n)
+    (lambda (i-1)
+      (just (Fin n) i-1))))
+
+
+(claim vec-ref
+  (Pi ((E U)
+       (l Nat))
+    (-> (Fin l) (Vec E l)
+      E)))
+
+
+(claim base-vec-ref
+  (Pi ((E U))
+    (-> (Fin zero) (Vec E zero)
+      E)))
+(define base-vec-ref
+  (lambda (E)
+    (lambda (no-value-ever es)
+      (ind-Absurd no-value-ever
+        E))))
+
+
+(claim step-vec-ref
+  (Pi ((E U)
+       (l-1 Nat))
+    (-> (-> (Fin l-1)
+            (Vec E l-1)
+          E)
+      (-> (Fin (add1 l-1))
+          (Vec E (add1 l-1))
+        E))))
+(define step-vec-ref
+  (lambda (E l-1)
+    (lambda (vec-ref_l-1)
+      (lambda (i es)
+        (ind-Either i
+          (lambda (i)
+            E)
+          (lambda (i-1)
+            (vec-ref_l-1
+              i-1 (tail es)))
+          (lambda (triv)
+            (head es)))))))
+
+
+(define vec-ref
+  (lambda (E l)
+    (ind-Nat l
+      (lambda (k)
+        (-> (Fin k) (Vec E k)
+          E))
+      (base-vec-ref E)
+      (step-vec-ref E))))
+
+
+;; Turner's Teaser
