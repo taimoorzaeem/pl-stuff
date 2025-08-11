@@ -2008,4 +2008,108 @@
       (step-vec-ref E))))
 
 
-;; Turner's Teaser
+;; Chap 15
+;; =======
+
+(claim =consequence
+  (-> Nat Nat
+    U))
+(define =consequence
+  (lambda (n j)
+    (which-Nat j
+      (which-Nat j
+        Trivial
+        (lambda (j-1)
+          Absurd))
+      (lambda (n-1)
+        (which-Nat j
+          Absurd
+          (lambda (j-1)
+            (= Nat n-1 j-1)))))))
+
+
+(claim =consequence-same
+  (Pi ((n Nat))
+    (=consequence n n)))
+(define =consequence-same
+  (lambda (n)
+    (ind-Nat n
+      (lambda (k)
+        (=consequence k k))
+      sole
+      (lambda (n-1 =consequence_n-1)
+        (same n-1)))))
+
+
+;; Imagine That ...
+;; ================
+;; Using types, it is possible to assume things that may or
+;; may not be true, and then see what can be concluded from
+;; these assumptions.
+
+
+;; Sameness vs Equality
+;; ====================
+;; Either two expressions are the same, or they are not. It is
+;; impossible to prove that they are the same because sameness
+;; is a judgement, not a type, and a proof is an expression with
+;; a specific type.
+
+
+(claim use-Nat=
+  (Pi ((n Nat)
+       (j Nat))
+    (-> (= Nat n j)
+      (=consequence n j))))
+(define use-Nat=
+  (lambda (n j)
+    (lambda (n=j)
+      (replace n=j
+        (lambda (k)
+          (=consequence n k))
+        (=consequence-same n)))))
+
+;; NOTE: This statement is sometimes called no confusion or disjointness.
+;; The pie interpreter wouldn't allow it for this is ill-typed.
+;; (claim zero-not-add1
+;;   (Pi ((n Nat))
+;;     (-> (= Nat zero (add1 n))
+;;       Absurd)))
+;; (define zero-not-add1
+;;   (lambda (n)
+;;     (use-Nat= zero (add1 n))))
+
+
+;; NOTE: Skipping some defintions here, because they are shown to be
+;;       derived from ill-typed definitions which wouldn't load here.
+
+
+;; NOTE: "Every statement is true or false." is called
+;;       the Principle of the Excluded Middle.
+
+
+(claim pem-not-false
+  (Pi ((X U))
+    (-> (-> (Either X
+              (-> X
+                Absurd))
+          Absurd)
+      Absurd)))
+(define pem-not-false
+  (lambda (X)
+    (lambda (pem-false)
+      (pem-false
+        (right
+          (lambda (x)
+            (pem-false
+              (left x))))))))
+
+
+(claim Dec
+  (-> U
+    U))
+(define Dec
+  (lambda (X)
+    (Either X
+      (-> X
+        Absurd))))
