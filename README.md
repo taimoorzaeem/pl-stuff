@@ -29,3 +29,9 @@ A good introduction to work with proof assistants. It really teaches the most im
 ### The Little Typer
 
 I find this to be a good intro to dependent types as someone with a background in Haskell. The main theme of the book is that types can represent propositions or statements and programs for these types are proofs or evidence of those propositions, also known as Curry-Howard Correspondence. I notice this book to have a lot of hand holding at times which I find somewhat annoying. Besides that, this book is pretty solid.
+
+## Ocaml
+
+### Types and Programming Languages
+
+Currently Reading
