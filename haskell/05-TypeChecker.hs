@@ -245,7 +245,7 @@ genPat env (PVar n) = do
 genPat env (PCons p1 p2)  = do
     t1 <- genPat env p1
     t2 <- genPat env p2
-    addConstraint env (TList t1,t2)
+    addConstraint env (TList t1, t2)
     return t2
 genPat env (PPair p1 p2) = do
     t1 <- genPat env p1
@@ -487,45 +487,22 @@ failUnification t1 t2 = error $ "Unification failed: " ++ ppr t1 ++ " does not u
 
 solveConstraints :: [Constraint] -> IO (Map Name Type)
 -- BEGIN solveConstraints (DO NOT DELETE THIS LINE)
-solveConstraints [] = do {
-        return (Map.empty);
-    }
-
-
-
--- TEST unify: unify (TArrow (TInt) (TArrow TInt TInt)) (TArrow (TInt) (TArrow (TVar "t0") (TVar "t2")))
-
-unify :: Type -> Type -> IO [Constraint]
-unify (TArrow t1 t2) (TArrow t3 t4) = do { 
-        if (t1 == t3) 
-                then (unify t2 t4)
-                else do {
-                    cs' <- unify t2 t4;
-                    (if (isUnifiable t1 t3)
-                        then return ((t1,t3):cs') 
-                        else failUnification t1 t3);
-                }
-    }
-unify t1 t2 = do {
-        if (t1 == t2) 
-                then return []
-                else do {
-                    (if (isUnifiable t1 t2)
-                        then return ((t1,t2):[]) 
-                        else failUnification t1 t2);
-                }
-    }
-isUnifiable :: Type -> Type -> Bool
-isUnifiable (TInt) (TVar _) = True
-isUnifiable (TVar _) (TInt) = True
-isUnifiable (TBool) (TVar _) = True
-isUnifiable (TVar _) (TBool) = True
-isUnifiable (TPair _ _) (TVar _) = True
-isUnifiable (TVar _) (TPair _ _) = True
-isUnifiable (TList _) (TVar _) = True
-isUnifiable (TVar _) (TList _) = True
-isUnifiable _ _ = False
-    
+solveConstraints xs = solveConstraints' (xs,Map.empty)
+  where
+    solveConstraints' :: ([Constraint],Map Name Type) -> IO (Map Name Type)
+    solveConstraints' ([],completeMappings) = return completeMappings
+    solveConstraints' (x:xs,mappings) = do
+      case x of
+        (TVar nm, t) ->
+          if occurs nm t
+            then failOccursCheck nm t
+            else solveConstraints' (map (substConstraint (nm,t)) xs, Map.insert nm t (substMap (nm,t) mappings))
+        (TArrow t1 t2, TArrow t3 t4) -> solveConstraints' ((t1,t3):(t2,t4):xs, mappings)
+        (t, TVar nm) -> solveConstraints' ((TVar nm, t):xs,mappings) -- Flips it
+        (TList t1, TList t2) -> solveConstraints' (xs,mappings)
+        (t1,t2) -> if t1 == t2 then solveConstraints' (xs,mappings) else failUnification t1 t2 -- No need, redundant constraint
+        -- TODO: REMAINING CASES?
+      
 -- END solveConstraints (DO NOT DELETE THIS LINE)
 
 -- Finally, we can put it all together!  To perform type inference, we
@@ -836,7 +813,7 @@ thToName = Name . TH.nameBase
 thToPat :: TH.Pat -> Pat
 thToPat (TH.VarP n) = PVar (thToName n)
 thToPat (TH.TupP [p1, p2]) = PPair (thToPat p1) (thToPat p2)
-thToPat (TH.ConP n []) | n == '[] = PNil
+thToPat (TH.ConP n [] _) | n == '[] = PNil
 thToPat (TH.InfixP p1 n p2) | n == '(:) = PCons (thToPat p1) (thToPat p2)
 thToPat p = error $ "Unsupported pat form " ++ show p
 
