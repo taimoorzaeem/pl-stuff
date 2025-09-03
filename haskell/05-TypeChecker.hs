@@ -487,21 +487,24 @@ failUnification t1 t2 = error $ "Unification failed: " ++ ppr t1 ++ " does not u
 
 solveConstraints :: [Constraint] -> IO (Map Name Type)
 -- BEGIN solveConstraints (DO NOT DELETE THIS LINE)
-solveConstraints xs = solveConstraints' (xs,Map.empty)
+solveConstraints xs = solveConstraints' xs Map.empty
   where
-    solveConstraints' :: ([Constraint],Map Name Type) -> IO (Map Name Type)
-    solveConstraints' ([],completeMappings) = return completeMappings
-    solveConstraints' (x:xs,mappings) = do
+    solveConstraints' :: [Constraint] -> Map Name Type -> IO (Map Name Type)
+    solveConstraints' [] completeMappings = return completeMappings
+    solveConstraints' (x:xs) mappings = do
       case x of
         (TVar nm, t) ->
           if occurs nm t
             then failOccursCheck nm t
-            else solveConstraints' (map (substConstraint (nm,t)) xs, Map.insert nm t (substMap (nm,t) mappings))
-        (TArrow t1 t2, TArrow t3 t4) -> solveConstraints' ((t1,t3):(t2,t4):xs, mappings)
-        (t, TVar nm) -> solveConstraints' ((TVar nm, t):xs,mappings) -- Flips it
-        (TList t1, TList t2) -> solveConstraints' (xs,mappings)
-        (t1,t2) -> if t1 == t2 then solveConstraints' (xs,mappings) else failUnification t1 t2 -- No need, redundant constraint
-        -- TODO: REMAINING CASES?
+            else solveConstraints' (map (substConstraint (nm,t)) xs) (Map.insert nm t (substMap (nm,t) mappings))
+        (TArrow t1 t2, TArrow t3 t4) -> solveConstraints' ((t1,t3):(t2,t4):xs) mappings
+        (t, TVar nm) -> solveConstraints' ((TVar nm, t):xs) mappings -- Flips it
+        (TList t1, TList t2) -> solveConstraints' xs mappings -- redundant
+        (TPair t1 t2, TPair t3 t4) -> solveConstraints' ((t1,t3):(t2,t4):xs) mappings
+        (t1,t2) ->
+          if t1 == t2
+            then solveConstraints' xs mappings -- No need, redundant constraint
+            else failUnification t1 t2
       
 -- END solveConstraints (DO NOT DELETE THIS LINE)
 
@@ -550,16 +553,16 @@ test p (Just expect_t) = do
 
 all_tests :: IO ()
 all_tests = mapM_ (uncurry test)
-    [ (ex_curried_add,          Nothing)
-    , (ex_id,                   Nothing)
-    , (ex_if,                   Nothing)
-    , (ex_length,               Nothing)
-    , (ex_nested_binding,       Nothing)
-    , (ex_nested_binding2,      Nothing)
-    , (ex_nested_pattern,       Nothing)
-    , (ex_plus3,                Nothing)
-    , (ex_redundant_pattern,    Nothing)
-    , (ex_uncurried_add,        Nothing)
+    [ (ex_curried_add,          Just "Int -> (Int -> Int)")
+    , (ex_id,                   Just "a -> a")
+    , (ex_if,                   Just "Bool -> a -> a -> a")
+    , (ex_length,               Just "[a] -> Int")
+    , (ex_nested_binding,       Just "(Int,Int) -> Int")
+    , (ex_nested_binding2,      Just "(Int,Int -> Int) -> Int")
+    , (ex_nested_pattern,       Just "([a],Int) -> Int")
+    , (ex_plus3,                Just "Int -> Int")
+    , (ex_redundant_pattern,    Just "([a],[b]) -> Int")
+    , (ex_uncurried_add,        Just "(Int,Int) -> Int")
     , (ex_occurs2,              Nothing)
     , (ex_occurs3,              Nothing)
     , (ex_occurs,               Nothing)
